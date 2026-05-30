@@ -1,9 +1,9 @@
 """Gera um relatório de testes (HTML) rodando a suíte pytest sob demanda.
 
 Usado pela rota GET /tests/report (somente em desenvolvimento). Roda o pytest em
-subprocesso, lê o resultado via JUnit XML e renderiza uma página HTML.
+subprocesso, lê o resultado via JUnit XML e renderiza uma página HTML dividida por
+nível (alto: aceitação/integração; baixo: unitário).
 """
-import datetime
 import html
 import os
 import subprocess
@@ -73,18 +73,27 @@ _BADGE_COLORS = {
 }
 
 
-def render_html(summary, cases, raw_tail, generated_at, refresh_seconds=15):
-    """Renderiza o relatório de testes como HTML."""
-    ok = summary["failures"] == 0 and summary["errors"] == 0
-    header_color = "#1f9d55" if ok else "#cc1f1a"
-    header_text = "TODOS OS TESTES PASSARAM" if ok else "HÁ FALHAS NA SUÍTE"
+def _level_of(classname):
+    """Classifica o teste em ('alto'|'baixo', rótulo) pelo nome do módulo."""
+    name = classname.lower()
+    if "acceptance" in name:
+        return ("alto", "Aceitação (E2E)")
+    if "integration" in name:
+        return ("alto", "Integração")
+    if "unit" in name:
+        return ("baixo", "Unitário")
+    return ("baixo", "Outros")
 
+
+def _render_rows(cases):
     rows = []
     for case in cases:
         color = _BADGE_COLORS.get(case["status"], "#8a8a8a")
         message = html.escape(case["message"]) if case["message"] else ""
+        label = _level_of(case["classname"])[1]
         rows.append(
             f"<tr>"
+            f"<td>{html.escape(label)}</td>"
             f"<td>{html.escape(case['classname'])}</td>"
             f"<td>{html.escape(case['name'])}</td>"
             f"<td><span class='badge' style='background:{color}'>{case['status']}</span></td>"
@@ -92,7 +101,40 @@ def render_html(summary, cases, raw_tail, generated_at, refresh_seconds=15):
             f"<td class='msg'>{message}</td>"
             f"</tr>"
         )
-    rows_html = "\n".join(rows)
+    return "\n".join(rows)
+
+
+def _section(title, subtitle, cases):
+    if not cases:
+        return ""
+    passed = sum(1 for c in cases if c["status"] == "passed")
+    failed = sum(1 for c in cases if c["status"] in ("failed", "error"))
+    skipped = sum(1 for c in cases if c["status"] == "skipped")
+    return f"""
+        <section class="level">
+            <h2>{html.escape(title)} <small>{subtitle}</small></h2>
+            <div class="counts">{len(cases)} testes &middot; {passed} &#10003; &middot; {failed} &#10007; &middot; {skipped} skip</div>
+            <table>
+                <thead><tr><th>Nível</th><th>Módulo</th><th>Teste</th><th>Status</th><th>Tempo</th><th>Mensagem</th></tr></thead>
+                <tbody>
+{_render_rows(cases)}
+                </tbody>
+            </table>
+        </section>"""
+
+
+def render_html(summary, cases, raw_tail, generated_at, refresh_seconds=15):
+    """Renderiza o relatório de testes como HTML, dividido por nível."""
+    ok = summary["failures"] == 0 and summary["errors"] == 0
+    header_color = "#1f9d55" if ok else "#cc1f1a"
+    header_text = "TODOS OS TESTES PASSARAM" if ok else "HÁ FALHAS NA SUÍTE"
+
+    alto = [c for c in cases if _level_of(c["classname"])[0] == "alto"]
+    baixo = [c for c in cases if _level_of(c["classname"])[0] == "baixo"]
+    sections = (
+        _section("Alto nível", "aceitação &amp; integração — jornadas e endpoints", alto)
+        + _section("Baixo nível", "unitário — funções isoladas", baixo)
+    )
     raw = html.escape(raw_tail)
 
     return f"""<!DOCTYPE html>
@@ -109,19 +151,21 @@ def render_html(summary, cases, raw_tail, generated_at, refresh_seconds=15):
         header .sub {{ opacity: .9; font-size: .9rem; }}
         .wrap {{ padding: 20px 24px; }}
         .cards {{ display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }}
-        .card {{ background: #fff; border: 2px solid #e3ddcf; border-radius: 8px;
-                 padding: 12px 16px; min-width: 96px; }}
+        .card {{ background: #fff; border: 2px solid #e3ddcf; border-radius: 8px; padding: 12px 16px; min-width: 92px; }}
         .card .n {{ font-size: 1.5rem; font-weight: 700; }}
         .card .l {{ font-size: .8rem; color: #666; }}
-        table {{ width: 100%; border-collapse: collapse; background: #fff;
-                 border: 2px solid #e3ddcf; border-radius: 8px; overflow: hidden; }}
-        th, td {{ text-align: left; padding: 8px 10px; border-bottom: 1px solid #eee; font-size: .9rem; }}
+        .level {{ margin-bottom: 22px; }}
+        .level h2 {{ margin: 0 0 2px 0; font-size: 1.1rem; }}
+        .level h2 small {{ font-weight: 400; color: #777; font-size: .8rem; }}
+        .counts {{ color: #555; font-size: .85rem; margin-bottom: 8px; }}
+        table {{ width: 100%; border-collapse: collapse; background: #fff; border: 2px solid #e3ddcf; border-radius: 8px; overflow: hidden; }}
+        th, td {{ text-align: left; padding: 8px 10px; border-bottom: 1px solid #eee; font-size: .88rem; }}
         th {{ background: #efeadd; }}
         td.num {{ text-align: right; font-variant-numeric: tabular-nums; }}
         td.msg {{ color: #999; font-size: .8rem; }}
-        .badge {{ color: #fff; padding: 2px 8px; border-radius: 10px; font-size: .75rem; text-transform: uppercase; }}
-        details {{ margin-top: 18px; }}
-        pre {{ background: #1e1e1e; color: #ddd; padding: 12px; border-radius: 8px; overflow:auto; font-size: .8rem; }}
+        .badge {{ color: #fff; padding: 2px 8px; border-radius: 10px; font-size: .72rem; text-transform: uppercase; }}
+        details {{ margin-top: 10px; }}
+        pre {{ background: #1e1e1e; color: #ddd; padding: 12px; border-radius: 8px; overflow: auto; font-size: .8rem; }}
     </style>
 </head>
 <body>
@@ -138,12 +182,7 @@ def render_html(summary, cases, raw_tail, generated_at, refresh_seconds=15):
             <div class="card"><div class="n" style="color:#8a8a8a">{summary['skipped']}</div><div class="l">Pulou</div></div>
             <div class="card"><div class="n">{summary['time']:.2f}s</div><div class="l">Duração</div></div>
         </div>
-        <table>
-            <thead><tr><th>Módulo</th><th>Teste</th><th>Status</th><th>Tempo</th><th>Mensagem</th></tr></thead>
-            <tbody>
-{rows_html}
-            </tbody>
-        </table>
+{sections}
         <details>
             <summary>Saída bruta do pytest</summary>
             <pre>{raw}</pre>
