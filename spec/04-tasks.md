@@ -90,7 +90,7 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
 ### Fase B — Loja real (produção e integrações)
 - [ ] Pagamento real (gateway: ex. Stripe/Mercado Pago) integrado ao checkout.
 - [ ] Upload/armazenamento de imagens de produto (hoje é URL de texto).
-- [ ] Servir em produção: WSGI (gunicorn), `debug=False`, perfis dev/prod.
+- [x] Servir em produção: `wsgi.py` (gunicorn `wsgi:app`) + `docker-compose.prod.yml` (FLASK_ENV=production, debug off). Dev segue com `python app.py`.
 - [ ] Segredos fortes + HTTPS (reverse proxy).
 - [ ] E-mails transacionais (confirmação de pedido/registro).
 - [x] Estoque/inventário: coluna `stock` em products; admin define; loja mostra "Esgotado";

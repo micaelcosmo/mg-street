@@ -1,0 +1,8 @@
+# Override de produção. Use junto do base:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build
+# Roda via gunicorn (WSGI) com FLASK_ENV=production (debug off, /tests/report desabilitado).
+services:
+  web:
+    environment:
+      FLASK_ENV: production
+    command: ["gunicorn", "-b", "0.0.0.0:5001", "-w", "2", "wsgi:app"]
