@@ -1,8 +1,9 @@
 {
   "feito": [
-    "Backlog construível concluído (0.8.0)",
-    "Pagamento Mercado Pago VALIDADO no sandbox (init_point gerado)"
+    "Pagamento Mercado Pago (sandbox, validado no backend)",
+    "Deploy: HTTPS grátis via Cloudflare Tunnel (DEPLOY.md)",
+    "CI expandido: pytest + E2E (Postgres de serviço)"
   ],
-  "fazendo": "Pagamento funcionando em sandbox (localhost)",
-  "proximo": "Você: testar uma compra no /shop com Pix/cartão de teste. Prod: HTTPS p/ auto_return+webhook"
+  "fazendo": "Deploy + CI preparados",
+  "proximo": "Você: subir o túnel (DEPLOY.md) e validar pagamento ponta a ponta; habilitar CI (escopo workflow)"
 }

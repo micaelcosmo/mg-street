@@ -16,10 +16,17 @@ templates/            # login.html, admin.html, shop.html (HTML + JS inline)
 static/               # style.css, logo/
 Dockerfile            # python:3.11-slim, usuário não-root (appuser), expõe 5001
 docker-compose.yml    # db (postgres:18-alpine, host 5433) + web (healthcheck via /ping)
+docker-compose.prod.yml  # override prod (gunicorn, FLASK_ENV=production)
+docker-compose.tunnel.yml # override de túnel (cloudflared → HTTPS público grátis)
+DEPLOY.md             # runbook de deploy (Cloudflare Tunnel)
 requirements.txt      # deps com versões fixas
 tests/                # suíte pytest (3 níveis)
 spec/                 # esta documentação SDD
 ```
+
+**Deploy (HTTPS grátis):** `cloudflared` (override de túnel) expõe o `web` numa URL https
+pública — habilita `auto_return`/webhook do Mercado Pago. **CI** (`.github/workflows/ci.yml`)
+roda pytest + E2E (Postgres de serviço) a cada push. Ver `DEPLOY.md`.
 
 **Camada de dados:** o SQL das rotas vive em `repositories/`; cada função recebe a
 conexão (`conn`) e devolve dados crus (tuplas/None) para a rota montar o JSON. A DDL e

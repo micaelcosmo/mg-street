@@ -1,0 +1,12 @@
+# Override de túnel (HTTPS público grátis via Cloudflare).
+# Demo (efêmero, sem conta):
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.tunnel.yml up -d
+#   docker compose logs cloudflared   # -> pega a URL https://*.trycloudflare.com
+# Depois: defina PUBLIC_BASE_URL=<essa URL> no .env e recrie o web (libera auto_return/webhook do MP).
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: ["tunnel", "--no-autoupdate", "--url", "http://web:5001"]
+    depends_on:
+      - web

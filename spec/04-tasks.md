@@ -93,7 +93,8 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
       Sem `MP_ACCESS_TOKEN`, mantém o fluxo sem pagamento.
 - [x] Upload **local** de imagens (POST `/api/upload`, admin): salva em `static/uploads/` e preenche o `image_url`. (Prod real: usar volume/objeto — não disco efêmero.)
 - [x] Servir em produção: `wsgi.py` (gunicorn `wsgi:app`) + `docker-compose.prod.yml` (FLASK_ENV=production, debug off). Dev segue com `python app.py`.
-- [ ] Segredos fortes + HTTPS (reverse proxy).
+- [x] HTTPS grátis via **Cloudflare Tunnel** (`docker-compose.tunnel.yml` + `DEPLOY.md`).
+      Segredos fortes: instruções no runbook (ação de ops; `.env` não versionado).
 - [x] E-mails transacionais: `emailer.py` (smtplib, sem dep) — boas-vindas no cadastro e
       confirmação quando o pedido é pago. Sem SMTP, apenas loga (dev); SMTP real é opcional.
 - [x] Estoque/inventário: coluna `stock` em products; admin define; loja mostra "Esgotado";
@@ -102,9 +103,9 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
 
 ### Fase C — Qualidade / escala
 - [x] Busca server-side (`?q=`) e paginação opt-in (`?page`/`?per_page`) em `/api/products`; admin usa busca no servidor (debounce).
-- [ ] CI: workflow **pronto** em `.github/workflows/ci.yml` (roda `pytest`), mas o push foi
-      recusado — o token não tem escopo `workflow`. Habilitar: dar escopo `workflow` ao PAT
-      e versionar o arquivo, **ou** criar pela aba Actions do GitHub colando o conteúdo.
+- [ ] CI: workflow **pronto** em `.github/workflows/ci.yml` (agora **pytest + E2E** com
+      Postgres de serviço). Falta **habilitar** — o push do `.github/` exige escopo
+      `workflow` no token (ou criar/colar pela aba Actions do GitHub).
 - [x] Rate limiting em `register` (por IP) e `checkout` (por usuário) reusando `RateLimiter`.
 - [x] Observabilidade: logs estruturados em JSON (opt-in via `LOG_JSON`), sem afetar o dev.
 - [x] Acessibilidade (1ª passada): `role=dialog`/`aria-modal` no modal, `aria-live` no toast, `aria-label` na busca, alts/labels já presentes. (Follow-up: associar labels do form admin.)
