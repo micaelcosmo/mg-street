@@ -24,11 +24,19 @@ produtos e acompanhar vendas.
 5. **Dashboard de vendas (Admin)** — lista de pedidos e estatísticas (total e receita).
 6. **Preview** — admin gera um token de cliente-demo para ver a loja como comprador.
 
-## Fora de escopo (hoje)
+## Status atual
 
-- **Pagamento real** — o checkout apenas registra o pedido ("verificação em andamento").
-- **Login social real** (Google/Facebook/Instagram) — botões são **mock visual**.
-- Gestão de estoque, frete, e-mails transacionais, multi-loja.
+**MVP funcional pronto** (login, gestão de produtos, carrinho/checkout, dashboard de
+vendas, preview) com testes e infra Docker. **Horizonte agora: loja real para público** —
+o backlog rumo a produção e o feedback do cliente estão em `04-tasks.md` (seção "Backlog
+— Loja real"). Itens como **pagamento real** e **login social** saíram de "fora de escopo"
+e viraram backlog (Fase B / decisão de features mock).
+
+## Fora de escopo (por enquanto)
+
+- Frete/logística e cálculo de impostos.
+- Multi-loja / multi-marca.
+- App mobile nativo.
 
 ## Critérios de sucesso
 

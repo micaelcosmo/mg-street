@@ -62,3 +62,37 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
 - [ ] Trocar segredos fracos do `.env` por valores aleatórios fortes em produção
       (ação de ops/deploy; não versionado).
 - [x] Usuário não-root (`appuser`) no `Dockerfile` + healthcheck do `web` (via `/ping`).
+
+## Backlog — Loja real (rumo a produção)
+
+> Horizonte aprovado: **loja real para público**. Executar pelo ciclo §1, um item por vez.
+
+### Feedback do cliente (prioridade)
+- [ ] **Dark mode** (paleta preto + roxo) na identidade visual.
+- [ ] **Modal de novo produto responsivo** (não cortar ao aumentar/diminuir a tela).
+- [ ] **Variações de produto** (cor/tamanho/etc.) — o admin define na criação; a loja só
+      mostra o seletor quando o produto tiver opções.
+- [ ] **Landing pública** antes do login (vitrine inicial da loja sem autenticação).
+
+### Fase A — Completar o fluxo (UX essencial)
+- [ ] Editar produto: `PUT /api/products/<id>` + UI no admin (fecha o CRUD).
+- [ ] Tela de cadastro de cliente: UI + link no login usando `/api/register`.
+- [ ] Carrinho com quantidade: +/-, agrupar item repetido, remover item.
+- [ ] Validação de entrada amigável (email/preço/campos) com mensagens claras.
+- [ ] "Meus pedidos" do cliente: `GET /api/orders/me` + página/seção.
+
+### Fase B — Loja real (produção e integrações)
+- [ ] Pagamento real (gateway: ex. Stripe/Mercado Pago) integrado ao checkout.
+- [ ] Upload/armazenamento de imagens de produto (hoje é URL de texto).
+- [ ] Servir em produção: WSGI (gunicorn), `debug=False`, perfis dev/prod.
+- [ ] Segredos fortes + HTTPS (reverse proxy).
+- [ ] E-mails transacionais (confirmação de pedido/registro).
+- [ ] Estoque/inventário (baixa no checkout).
+- [ ] Persistir carrinho no servidor.
+
+### Fase C — Qualidade / escala
+- [ ] Paginação + busca server-side de produtos.
+- [ ] CI: rodar `pytest` a cada push.
+- [ ] Rate limiting em `register`/`checkout`.
+- [ ] Observabilidade: logs estruturados.
+- [ ] Auditoria de acessibilidade/responsividade.
