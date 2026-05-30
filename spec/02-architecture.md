@@ -115,6 +115,7 @@ momento da compra (preservam o histórico mesmo se o produto mudar/for removido)
 | POST | `/api/login` | — | `{email,password}` | 200 `{token,role}` |
 | GET | `/api/products` | token | — | 200 `{products:[...]}` |
 | POST | `/api/products` | admin | `{name,description,price,image_url,category}` | 201 `{message,id}` |
+| PUT | `/api/products/<id>` | admin | `{name,description,price,image_url,category,options}` | 200 `{message,id}` / 404 |
 | DELETE | `/api/products/<id>` | admin | — | 200 `{message}` |
 | GET | `/api/orders` | admin | — | 200 `{orders:[{...,items:[...]}]}` |
 | GET | `/api/orders/stats` | admin | — | 200 `{total_orders,total_revenue}` |

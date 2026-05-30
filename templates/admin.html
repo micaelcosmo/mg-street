@@ -94,7 +94,7 @@
     <!-- Modal de Novo Produto -->
     <div id="product-modal" class="modal" aria-hidden="true">
         <div class="modal-content">
-            <h3>Novo Produto</h3>
+            <h3 id="modal-title">Novo Produto</h3>
             <form id="product-form">
                 <label>Nome</label>
                 <input type="text" name="name" required />
@@ -131,6 +131,7 @@
         const tbody = document.querySelector('.products-table tbody');
         const emptyState = document.getElementById('empty-state');
         const productsCount = document.getElementById('products-count');
+        let currentProducts = [];
 
         async function fetchAndRenderProducts() {
             const token = localStorage.getItem('mgstreet_token');
@@ -141,6 +142,7 @@
                 if (!resp.ok) { throw new Error('Falha ao buscar produtos'); }
                 const data = await resp.json();
                 const products = data.products || [];
+                currentProducts = products;
                 productsCount.textContent = products.length;
                 if (products.length === 0) {
                     emptyState.style.display = 'block';
@@ -154,7 +156,10 @@
                         <td>${product.description || ''}</td>
                         <td>R$ ${product.price != null ? Number(product.price).toFixed(2) : ''}</td>
                         <td>${product.image_url ? `<img src="${product.image_url}" alt="" class="tbl-img"/>` : ''}</td>
-                        <td><button class="btn btn-danger" data-id="${product.id}">Deletar</button></td>
+                        <td>
+                            <button class="btn btn-ghost edit-btn" data-id="${product.id}">Editar</button>
+                            <button class="btn btn-danger" data-id="${product.id}">Deletar</button>
+                        </td>
                     `;
                     tbody.appendChild(tr);
                 });
@@ -165,13 +170,46 @@
             }
         }
 
-        // Modal logic
+        // Modal logic (cria ou edita)
         const modal = document.getElementById('product-modal');
         const productForm = document.getElementById('product-form');
         const cancelBtn = document.getElementById('cancel-product');
-        function openModal() { modal.setAttribute('aria-hidden', 'false'); }
-        function closeModal() { modal.setAttribute('aria-hidden', 'true'); productForm.reset(); }
-        document.getElementById('new-product-btn').addEventListener('click', openModal);
+        const modalTitle = document.getElementById('modal-title');
+        let editingId = null;
+
+        // Converte { Cor: ["Preto","Roxo"] } de volta para "Cor: Preto, Roxo" (uma por linha).
+        function optionsToText(options) {
+            return Object.keys(options || {})
+                .map(function (key) { return key + ': ' + (options[key] || []).join(', '); })
+                .join('\n');
+        }
+
+        function openModalForNew() {
+            editingId = null;
+            productForm.reset();
+            modalTitle.textContent = 'Novo Produto';
+            modal.setAttribute('aria-hidden', 'false');
+        }
+
+        function openModalForEdit(product) {
+            editingId = product.id;
+            modalTitle.textContent = 'Editar Produto';
+            productForm.name.value = product.name || '';
+            productForm.description.value = product.description || '';
+            productForm.price.value = product.price != null ? product.price : '';
+            productForm.image_url.value = product.image_url || '';
+            productForm.category.value = product.category || '';
+            productForm.options.value = optionsToText(product.options);
+            modal.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeModal() {
+            modal.setAttribute('aria-hidden', 'true');
+            productForm.reset();
+            editingId = null;
+        }
+
+        document.getElementById('new-product-btn').addEventListener('click', openModalForNew);
         cancelBtn.addEventListener('click', closeModal);
 
         // Converte "Cor: Preto, Roxo" (uma por linha) em { Cor: ["Preto","Roxo"] }.
@@ -192,23 +230,35 @@
             const form = new FormData(productForm);
             const payload = { name: form.get('name'), description: form.get('description'), price: parseFloat(form.get('price')), image_url: form.get('image_url'), category: form.get('category'), options: parseOptions(form.get('options')) };
             const token = localStorage.getItem('mgstreet_token');
+            const method = editingId ? 'PUT' : 'POST';
+            const url = editingId ? `/api/products/${editingId}` : '/api/products';
             try {
-                const resp = await fetch('/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(payload) });
-                if (!resp.ok) { const err = await resp.json().catch(()=>({})); alert(err.error || 'Falha ao criar produto.'); return; }
+                const resp = await fetch(url, { method: method, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(payload) });
+                if (!resp.ok) { const err = await resp.json().catch(()=>({})); alert(err.error || 'Falha ao salvar produto.'); return; }
                 closeModal(); fetchAndRenderProducts();
-            } catch (err) { alert('Erro de rede ao criar produto.'); }
+            } catch (err) { alert('Erro de rede ao salvar produto.'); }
         });
 
-        // Delete delegation
+        // Delegação de clique na tabela: editar ou deletar
         tbody.addEventListener('click', async function (e) {
-            const btn = e.target.closest('button'); if (!btn) return; if (!btn.classList.contains('btn-danger')) return;
-            const id = btn.getAttribute('data-id'); if (!id) return; if (!confirm('Confirmar remoção do produto?')) return;
-            const token = localStorage.getItem('mgstreet_token');
-            try {
-                const resp = await fetch(`/api/products/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
-                if (!resp.ok) { const err = await resp.json().catch(()=>({})); alert(err.error || 'Falha ao deletar produto.'); return; }
-                fetchAndRenderProducts();
-            } catch (err) { alert('Erro de rede ao deletar produto.'); }
+            const btn = e.target.closest('button'); if (!btn) return;
+            const id = btn.getAttribute('data-id'); if (!id) return;
+
+            if (btn.classList.contains('edit-btn')) {
+                const product = currentProducts.find(function (p) { return String(p.id) === String(id); });
+                if (product) openModalForEdit(product);
+                return;
+            }
+
+            if (btn.classList.contains('btn-danger')) {
+                if (!confirm('Confirmar remoção do produto?')) return;
+                const token = localStorage.getItem('mgstreet_token');
+                try {
+                    const resp = await fetch(`/api/products/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+                    if (!resp.ok) { const err = await resp.json().catch(()=>({})); alert(err.error || 'Falha ao deletar produto.'); return; }
+                    fetchAndRenderProducts();
+                } catch (err) { alert('Erro de rede ao deletar produto.'); }
+            }
         });
 
         // Simple search

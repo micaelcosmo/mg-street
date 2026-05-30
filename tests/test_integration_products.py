@@ -144,3 +144,38 @@ def test_list_products_includes_options(client, application, set_cursor):
     resp = client.get("/api/products", headers={"Authorization": f"Bearer {token}"})
     assert resp.status_code == 200
     assert resp.get_json()["products"][0]["options"] == {"Cor": ["Preto", "Roxo"]}
+
+
+# ---- PUT /api/products/<id> ----
+
+def test_update_product_requires_admin(client, application):
+    token = _user_token(application)
+    resp = client.put(
+        "/api/products/1",
+        json={"name": "X", "price": 10},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 403
+
+
+def test_update_product_success(client, application, set_cursor):
+    set_cursor(fetchone=(5,))
+    token = _admin_token(application)
+    resp = client.put(
+        "/api/products/5",
+        json={"name": "Camiseta Nova", "price": 59.9},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 200
+    assert resp.get_json()["id"] == 5
+
+
+def test_update_product_not_found(client, application, set_cursor):
+    set_cursor(fetchone=None)
+    token = _admin_token(application)
+    resp = client.put(
+        "/api/products/999",
+        json={"name": "X", "price": 10},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 404

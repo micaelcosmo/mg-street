@@ -25,6 +25,20 @@ def create(conn, name, description, price, image_url, category_id, options=None)
     return product_id
 
 
+def update(conn, product_id, name, description, price, image_url, category_id, options=None):
+    """Atualiza um produto; retorna o id ou None se não existir."""
+    with conn.cursor() as cursor:
+        cursor.execute(
+            "UPDATE products SET name=%s, description=%s, price=%s, image_url=%s, "
+            "category_id=%s, options=%s WHERE id=%s RETURNING id",
+            (name, description, price, image_url, category_id, json.dumps(options or {}), product_id),
+        )
+        row = cursor.fetchone()
+    if row:
+        conn.commit()
+    return row[0] if row else None
+
+
 def delete(conn, product_id):
     """Remove um produto; retorna o id removido ou None se não existia."""
     with conn.cursor() as cursor:

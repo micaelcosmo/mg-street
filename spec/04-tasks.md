@@ -77,7 +77,8 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
       login movido para `/login`; redirects de "não logado" apontam para `/login`.
 
 ### Fase A — Completar o fluxo (UX essencial)
-- [ ] Editar produto: `PUT /api/products/<id>` + UI no admin (fecha o CRUD).
+- [x] Editar produto: `PUT /api/products/<id>` + botão "Editar" no admin (modal prefill,
+      inclui opções). Fecha o CRUD.
 - [ ] Tela de cadastro de cliente: UI + link no login usando `/api/register`.
 - [ ] Carrinho com quantidade: +/-, agrupar item repetido, remover item.
 - [ ] Validação de entrada amigável (email/preço/campos) com mensagens claras.

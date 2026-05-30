@@ -455,6 +455,32 @@ def create_app():
             app.logger.error('Erro ao deletar produto: %s', exc)
             return jsonify({'error': 'Falha ao deletar produto.'}), 500
 
+    @app.route('/api/products/<int:product_id>', methods=['PUT'])
+    @admin_required
+    def update_product(payload, product_id):
+        data = request.get_json() or {}
+        name = data.get('name')
+        description = data.get('description', '')
+        price = data.get('price')
+        image_url = data.get('image_url')
+        category = data.get('category')
+        options = data.get('options') or {}
+
+        if not name or price is None:
+            return jsonify({'error': 'Dados incompletos para produto.'}), 400
+
+        try:
+            category_id = categories_repo.resolve_id(app.db_conn, category)
+            updated_id = products_repo.update(
+                app.db_conn, product_id, name, description, price, image_url, category_id, options
+            )
+            if updated_id is None:
+                return jsonify({'error': 'Produto não encontrado.'}), 404
+            return jsonify({'message': 'Produto atualizado.', 'id': updated_id}), 200
+        except Exception as exc:
+            app.logger.error('Erro ao atualizar produto: %s', exc)
+            return jsonify({'error': 'Falha ao atualizar produto.'}), 500
+
     @app.route('/api/orders', methods=['GET'])
     @admin_required
     def list_orders(payload):

@@ -1,12 +1,12 @@
 {
   "feito": [
-    "Relatório de testes dividido por nível + painel de status",
+    "Dados do Docker movidos para D: (C: liberou ~8GB)",
     "Dark mode (preto + roxo)",
     "Modal de novo produto responsivo",
     "Landing pública antes do login",
     "Variações de produto (cor/tamanho) ponta a ponta",
-    "Backlog 'Loja real' nas tasks"
+    "Editar produto — CRUD completo (PUT + UI)"
   ],
-  "fazendo": "PAUSADO p/ priorizar disco: mover dados do Docker para D:",
-  "proximo": "Retomar Fase A (editar produto, cadastro de cliente, quantidade no carrinho)"
+  "fazendo": "Fase A — tela de cadastro de cliente (UI + link no login)",
+  "proximo": "Quantidade no carrinho (+/-, agrupar, remover); validação amigável"
 }
