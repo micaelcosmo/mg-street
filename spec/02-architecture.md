@@ -5,19 +5,27 @@
 ## Estrutura de arquivos (atual)
 
 ```
-app.py                # Monólito Flask: config, conexão, schema/seed, todas as rotas
+app.py                # Flask: config, conexão, DDL/seed (boot), decorators, rotas finas
+repositories/         # camada de dados — SQL das rotas isolado por entidade
+  users.py            #   get_credentials_by_email, get_by_email, create
+  products.py         #   list_all, create, delete
+  orders.py           #   create_with_items (transação), list_with_items, stats
+  categories.py       #   resolve_id (upsert)
 templates/            # login.html, admin.html, shop.html (HTML + JS inline)
 static/               # style.css, logo/
 Dockerfile            # python:3.11-slim, expõe 5001
 docker-compose.yml    # db (postgres:18-alpine, volume em /var/lib/postgresql, host 5433) + web
 requirements.txt      # deps com versões fixas
-.env / .env.example   # configuração via ambiente
 tests/                # suíte pytest (3 níveis)
 spec/                 # esta documentação SDD
 ```
 
-**Alvo recomendado (quando crescer):** separar `app.py` em blueprints/módulos
-(`auth`, `products`, `orders`) e uma camada de acesso a dados, isolando SQL das rotas.
+**Camada de dados:** o SQL das rotas vive em `repositories/`; cada função recebe a
+conexão (`conn`) e devolve dados crus (tuplas/None) para a rota montar o JSON. A DDL e
+os seeds (boot) seguem nas funções `create_*_table` de `app.py`.
+
+**Alvo recomendado (quando crescer):** separar as rotas de `app.py` em blueprints
+(`auth`, `products`, `orders`); avaliar mover DDL/seed para `repositories/schema.py`.
 
 ## Configuração (via ambiente)
 
@@ -122,7 +130,6 @@ Notas do contrato (o nome das chaves JSON é estável; o schema interno é norma
 
 (rastreadas como tarefas em `04-tasks.md`)
 
-- **SQL cru** sem ORM (queries à mão nas rotas) — considerar camada de dados/SQLAlchemy.
 - **Sem rate limiting** em `/api/login` (vulnerável a brute-force).
 - **`showToast()` duplicado** em `login.html` e `shop.html` (JS não reutilizável).
 - **Decode de JWT manual** (`parseJwt`) no frontend é frágil.

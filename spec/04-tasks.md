@@ -46,7 +46,8 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
       agregados e stats; limpa os dados ao final (`tests/test_acceptance_checkout.py`).
 
 ### Dívidas técnicas (de `02-architecture.md`)
-- [ ] Extrair SQL cru para uma camada de dados / avaliar ORM (SQLAlchemy).
+- [x] Extrair SQL das rotas para uma camada de dados (`repositories/`, sem ORM): users,
+      products, orders, categories. Rotas ficaram finas; testes preservados.
 - [ ] Avaliar `autocommit=False` global com `rollback` em todos os `except`.
 - [ ] Rate limiting em `/api/login`.
 - [ ] Unificar `showToast()` num único JS reutilizável (remover duplicação).

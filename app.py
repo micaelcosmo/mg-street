@@ -9,6 +9,13 @@ import jwt
 import psycopg2
 from functools import wraps
 
+from repositories import (
+    categories as categories_repo,
+    orders as orders_repo,
+    products as products_repo,
+    users as users_repo,
+)
+
 
 load_dotenv()
 
@@ -34,19 +41,6 @@ def calculate_cart_total(items):
         except (TypeError, ValueError):
             continue
     return total
-
-
-def resolve_category_id(cursor, category_name):
-    """Retorna o id da categoria pelo nome, criando-a se necessário; None se vazio."""
-    if not category_name:
-        return None
-    cursor.execute(
-        "INSERT INTO categories (name) VALUES (%s) ON CONFLICT (name) DO NOTHING;",
-        (category_name,),
-    )
-    cursor.execute("SELECT id FROM categories WHERE name = %s", (category_name,))
-    row = cursor.fetchone()
-    return row[0] if row else None
 
 
 def token_required(f):
@@ -303,15 +297,8 @@ def create_app():
         if not name or not email or not password:
             return jsonify({"error": "Dados incompletos."}), 400
 
-        password_hash = hash_password(password)
-
         try:
-            with app.db_conn.cursor() as cursor:
-                cursor.execute(
-                    "INSERT INTO users (name, email, password_hash, role) VALUES (%s, %s, %s, %s)",
-                    (name, email, password_hash, "user"),
-                )
-            app.db_conn.commit()
+            users_repo.create(app.db_conn, name, email, hash_password(password))
             return jsonify({"message": "Registro criado com sucesso."}), 201
         except Exception as exc:
             app.logger.error("Falha no registro: %s", exc)
@@ -327,13 +314,7 @@ def create_app():
             return jsonify({"error": "Dados incompletos."}), 400
 
         try:
-            with app.db_conn.cursor() as cursor:
-                cursor.execute(
-                    "SELECT id, password_hash, role FROM users WHERE email = %s",
-                    (email,),
-                )
-                row = cursor.fetchone()
-
+            row = users_repo.get_credentials_by_email(app.db_conn, email)
             if not row:
                 return jsonify({"error": "Credenciais inválidas."}), 401
 
@@ -380,15 +361,8 @@ def create_app():
             return jsonify({'error': 'Dados incompletos para produto.'}), 400
 
         try:
-            with app.db_conn.cursor() as cursor:
-                category_id = resolve_category_id(cursor, category)
-                cursor.execute(
-                    "INSERT INTO products (name, description, price, image_url, category_id) "
-                    "VALUES (%s, %s, %s, %s, %s) RETURNING id",
-                    (name, description, price, image_url, category_id),
-                )
-                product_id = cursor.fetchone()[0]
-            app.db_conn.commit()
+            category_id = categories_repo.resolve_id(app.db_conn, category)
+            product_id = products_repo.create(app.db_conn, name, description, price, image_url, category_id)
             return jsonify({'message': 'Produto criado.', 'id': product_id}), 201
         except Exception as exc:
             app.logger.error('Erro ao criar produto: %s', exc)
@@ -398,14 +372,8 @@ def create_app():
     @token_required
     def list_products(payload):
         try:
-            with app.db_conn.cursor() as cursor:
-                cursor.execute(
-                    'SELECT p.id, p.name, p.description, p.price, p.image_url, c.name '
-                    'FROM products p LEFT JOIN categories c ON p.category_id = c.id '
-                    'ORDER BY p.id DESC'
-                )
-                rows = cursor.fetchall()
-            products = [
+            rows = products_repo.list_all(app.db_conn)
+            result = [
                 {
                     'id': row[0],
                     'name': row[1],
@@ -416,7 +384,7 @@ def create_app():
                 }
                 for row in rows
             ]
-            return jsonify({'products': products}), 200
+            return jsonify({'products': result}), 200
         except Exception as exc:
             app.logger.error('Erro ao listar produtos: %s', exc)
             return jsonify({'error': 'Falha ao listar produtos.'}), 500
@@ -425,12 +393,9 @@ def create_app():
     @admin_required
     def delete_product(payload, product_id):
         try:
-            with app.db_conn.cursor() as cursor:
-                cursor.execute('DELETE FROM products WHERE id = %s RETURNING id', (product_id,))
-                row = cursor.fetchone()
-            if not row:
+            deleted_id = products_repo.delete(app.db_conn, product_id)
+            if deleted_id is None:
                 return jsonify({'error': 'Produto não encontrado.'}), 404
-            app.db_conn.commit()
             return jsonify({'message': 'Produto removido.'}), 200
         except Exception as exc:
             app.logger.error('Erro ao deletar produto: %s', exc)
@@ -440,18 +405,8 @@ def create_app():
     @admin_required
     def list_orders(payload):
         try:
-            with app.db_conn.cursor() as cursor:
-                cursor.execute(
-                    "SELECT o.id, o.user_id, o.total, o.created_at, "
-                    "COALESCE(json_agg(json_build_object("
-                    "'product_id', oi.product_id, 'name', oi.product_name, "
-                    "'unit_price', oi.unit_price, 'quantity', oi.quantity)) "
-                    "FILTER (WHERE oi.id IS NOT NULL), '[]') AS items "
-                    "FROM orders o LEFT JOIN order_items oi ON oi.order_id = o.id "
-                    "GROUP BY o.id ORDER BY o.created_at DESC"
-                )
-                rows = cursor.fetchall()
-            orders = [
+            rows = orders_repo.list_with_items(app.db_conn)
+            result = [
                 {
                     'id': row[0],
                     'user_id': row[1],
@@ -461,7 +416,7 @@ def create_app():
                 }
                 for row in rows
             ]
-            return jsonify({'orders': orders}), 200
+            return jsonify({'orders': result}), 200
         except Exception as exc:
             app.logger.error('Erro ao listar pedidos: %s', exc)
             return jsonify({'error': 'Falha ao listar pedidos.'}), 500
@@ -470,9 +425,7 @@ def create_app():
     @admin_required
     def orders_stats(payload):
         try:
-            with app.db_conn.cursor() as cursor:
-                cursor.execute('SELECT COUNT(1), COALESCE(SUM(total),0) FROM orders')
-                row = cursor.fetchone()
+            row = orders_repo.stats(app.db_conn)
             total_orders = int(row[0])
             total_revenue = float(row[1])
             return jsonify({'total_orders': total_orders, 'total_revenue': total_revenue}), 200
@@ -490,35 +443,12 @@ def create_app():
 
         total = calculate_cart_total(items)
 
-        # Pedido + itens precisam ser atômicos: desliga o autocommit só neste bloco.
-        app.db_conn.autocommit = False
         try:
-            with app.db_conn.cursor() as cursor:
-                cursor.execute(
-                    'INSERT INTO orders (user_id, total) VALUES (%s, %s) RETURNING id',
-                    (payload.get('id'), total),
-                )
-                order_id = cursor.fetchone()[0]
-                for item in items:
-                    cursor.execute(
-                        'INSERT INTO order_items (order_id, product_id, product_name, unit_price, quantity) '
-                        'VALUES (%s, %s, %s, %s, %s)',
-                        (
-                            order_id,
-                            item.get('id'),
-                            item.get('name', ''),
-                            float(item.get('price', 0) or 0),
-                            int(item.get('quantity', 1) or 1),
-                        ),
-                    )
-            app.db_conn.commit()
+            order_id = orders_repo.create_with_items(app.db_conn, payload.get('id'), items, total)
             return jsonify({'message': 'Pedido registrado.', 'order_id': order_id}), 201
         except Exception as exc:
-            app.db_conn.rollback()
             app.logger.error('Falha ao criar pedido: %s', exc)
             return jsonify({'error': 'Falha ao criar pedido.'}), 500
-        finally:
-            app.db_conn.autocommit = True
 
     @app.route('/api/preview_token', methods=['GET'])
     @admin_required
@@ -526,9 +456,7 @@ def create_app():
         """Gera um JWT do cliente-demo para o admin pré-visualizar a loja como esse usuário."""
         try:
             demo_email = os.getenv('DEMO_EMAIL', 'cliente@mgstreet.com')
-            with app.db_conn.cursor() as cursor:
-                cursor.execute('SELECT id, name, email, role FROM users WHERE email = %s', (demo_email,))
-                row = cursor.fetchone()
+            row = users_repo.get_by_email(app.db_conn, demo_email)
             if not row:
                 return jsonify({'error': 'Usuário de exemplo não encontrado.'}), 404
             user_id, name, email, role = row
