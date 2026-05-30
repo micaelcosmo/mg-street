@@ -5,6 +5,8 @@ function showToast(message) {
 
     const div = document.createElement('div');
     div.className = 'mg-toast';
+    div.setAttribute('role', 'status');
+    div.setAttribute('aria-live', 'polite');
     div.textContent = message;
     document.body.appendChild(div);
     setTimeout(() => div.classList.add('visible'), 10);

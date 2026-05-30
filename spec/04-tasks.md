@@ -104,4 +104,4 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
       e versionar o arquivo, **ou** criar pela aba Actions do GitHub colando o conteúdo.
 - [x] Rate limiting em `register` (por IP) e `checkout` (por usuário) reusando `RateLimiter`.
 - [x] Observabilidade: logs estruturados em JSON (opt-in via `LOG_JSON`), sem afetar o dev.
-- [ ] Auditoria de acessibilidade/responsividade.
+- [x] Acessibilidade (1ª passada): `role=dialog`/`aria-modal` no modal, `aria-live` no toast, `aria-label` na busca, alts/labels já presentes. (Follow-up: associar labels do form admin.)

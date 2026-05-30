@@ -1,12 +1,12 @@
 {
   "feito": [
-    "Fase A COMPLETA",
-    "Estoque + rate limits",
-    "Busca server-side + paginação",
+    "Fase A completa + estoque + rate limits",
+    "Busca/paginação + perfil prod (gunicorn)",
+    "Logs estruturados + a11y (1ª passada)",
     "Dark mode + landing + variações"
   ],
-  "fazendo": "Fase C — auditoria de acessibilidade (alt/aria/labels)",
-  "proximo": "Upload local de imagens; persistir carrinho (grátis)",
+  "fazendo": "Fase B (grátis) — upload local de imagens de produto",
+  "proximo": "Persistir carrinho no servidor (grátis). Pagamento/e-mail: pulados ($)",
   "custo": {
     "faixa": "Estimativa manual: médio",
     "nota": "O app não acessa o faturamento real da Claude — valor exato no painel de billing da Anthropic. Este box é atualizado à mão."
