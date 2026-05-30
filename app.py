@@ -325,10 +325,18 @@ def create_app():
     app.config["JWT_SECRET"] = os.getenv("JWT_SECRET", "mgstreet_jwt_secret")
     app.config["JWT_EXP_HOURS"] = int(os.getenv("JWT_EXP_HOURS", 12))
 
-    # Rate limiting do login (in-memory, por IP+email) para mitigar brute-force.
+    # Rate limiting in-memory para mitigar abuso (login/registro/checkout).
     app.login_limiter = RateLimiter(
         max_attempts=int(os.getenv("LOGIN_RATE_LIMIT", 5)),
         window_seconds=int(os.getenv("LOGIN_RATE_WINDOW", 60)),
+    )
+    app.register_limiter = RateLimiter(
+        max_attempts=int(os.getenv("REGISTER_RATE_LIMIT", 5)),
+        window_seconds=int(os.getenv("REGISTER_RATE_WINDOW", 60)),
+    )
+    app.checkout_limiter = RateLimiter(
+        max_attempts=int(os.getenv("CHECKOUT_RATE_LIMIT", 10)),
+        window_seconds=int(os.getenv("CHECKOUT_RATE_WINDOW", 60)),
     )
 
     @app.route("/ping", methods=["GET"])
@@ -358,6 +366,8 @@ def create_app():
         email = payload.get("email")
         password = payload.get("password")
 
+        if not app.register_limiter.is_allowed(request.remote_addr or "?"):
+            return jsonify({"error": "Muitas tentativas. Tente novamente em instantes."}), 429
         if not name or not email or not password:
             return jsonify({"error": "Dados incompletos."}), 400
         if not is_valid_email(email):
@@ -556,6 +566,9 @@ def create_app():
     @app.route('/api/checkout', methods=['POST'])
     @token_required
     def checkout(payload):
+        if not app.checkout_limiter.is_allowed(str(payload.get('id'))):
+            return jsonify({'error': 'Muitas tentativas. Tente novamente em instantes.'}), 429
+
         data = request.get_json() or {}
         items = data.get('items') or []
         if not isinstance(items, list) or len(items) == 0:

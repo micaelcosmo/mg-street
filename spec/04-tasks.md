@@ -100,6 +100,6 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
 ### Fase C — Qualidade / escala
 - [ ] Paginação + busca server-side de produtos.
 - [ ] CI: rodar `pytest` a cada push.
-- [ ] Rate limiting em `register`/`checkout`.
+- [x] Rate limiting em `register` (por IP) e `checkout` (por usuário) reusando `RateLimiter`.
 - [ ] Observabilidade: logs estruturados.
 - [ ] Auditoria de acessibilidade/responsividade.

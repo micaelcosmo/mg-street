@@ -125,6 +125,23 @@ def test_register_short_password_is_rejected(client):
     assert resp.status_code == 400
 
 
+def test_register_rate_limited(client, application):
+    application.register_limiter = RateLimiter(max_attempts=1, window_seconds=60)
+    body = {"name": "A", "email": "a@b.com", "password": "segredo"}
+    assert client.post("/api/register", json=body).status_code in (201, 400)
+    assert client.post("/api/register", json=body).status_code == 429
+
+
+def test_checkout_rate_limited(client, application, set_cursor):
+    application.checkout_limiter = RateLimiter(max_attempts=1, window_seconds=60)
+    set_cursor(fetchone=(10,))
+    token = jwt.encode({"id": 1, "role": "user"}, application.config["JWT_SECRET"], algorithm="HS256")
+    headers = {"Authorization": f"Bearer {token}"}
+    body = {"items": [{"id": 1, "name": "X", "price": 10, "quantity": 1}]}
+    assert client.post("/api/checkout", json=body, headers=headers).status_code == 201
+    assert client.post("/api/checkout", json=body, headers=headers).status_code == 429
+
+
 def test_my_orders_requires_token(client):
     assert client.get("/api/orders/me").status_code == 401
 
