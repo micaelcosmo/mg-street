@@ -21,6 +21,9 @@ services:
     restart: unless-stopped
     ports:
       - "5001:5001"
+    env_file:
+      - path: .env
+        required: false
     environment:
       FLASK_APP: app.py
       FLASK_ENV: development
