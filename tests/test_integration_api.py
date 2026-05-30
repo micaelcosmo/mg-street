@@ -123,3 +123,21 @@ def test_register_short_password_is_rejected(client):
         json={"name": "X", "email": "x@y.com", "password": "12"},
     )
     assert resp.status_code == 400
+
+
+def test_my_orders_requires_token(client):
+    assert client.get("/api/orders/me").status_code == 401
+
+
+def test_my_orders_returns_user_orders(client, application, set_cursor):
+    set_cursor(fetchall=[(1, 2, 99.8, None, [{"name": "Camiseta", "quantity": 2}])])
+    token = jwt.encode(
+        {"id": 2, "role": "user"},
+        application.config["JWT_SECRET"],
+        algorithm="HS256",
+    )
+    resp = client.get("/api/orders/me", headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert len(data["orders"]) == 1
+    assert data["orders"][0]["id"] == 1

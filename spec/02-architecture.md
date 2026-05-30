@@ -118,6 +118,7 @@ momento da compra (preservam o histórico mesmo se o produto mudar/for removido)
 | PUT | `/api/products/<id>` | admin | `{name,description,price,image_url,category,options}` | 200 `{message,id}` / 404 |
 | DELETE | `/api/products/<id>` | admin | — | 200 `{message}` |
 | GET | `/api/orders` | admin | — | 200 `{orders:[{...,items:[...]}]}` |
+| GET | `/api/orders/me` | token | — | 200 `{orders:[...]}` (do próprio usuário) |
 | GET | `/api/orders/stats` | admin | — | 200 `{total_orders,total_revenue}` |
 | POST | `/api/checkout` | token | `{items:[{id,name,price,quantity}]}` | 201 `{message,order_id}` |
 | GET | `/api/preview_token` | admin | — | 200 `{token,user}` |

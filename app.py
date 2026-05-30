@@ -62,6 +62,20 @@ def serialize_products(rows):
     ]
 
 
+def serialize_orders(rows):
+    """Converte linhas de pedido (id, user_id, total, created_at, items)."""
+    return [
+        {
+            "id": row[0],
+            "user_id": row[1],
+            "total": float(row[2]) if row[2] is not None else 0,
+            "created_at": row[3].isoformat() if row[3] is not None else None,
+            "items": row[4] if row[4] is not None else [],
+        }
+        for row in rows
+    ]
+
+
 def token_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -507,19 +521,19 @@ def create_app():
     def list_orders(payload):
         try:
             rows = orders_repo.list_with_items(app.db_conn)
-            result = [
-                {
-                    'id': row[0],
-                    'user_id': row[1],
-                    'total': float(row[2]) if row[2] is not None else 0,
-                    'created_at': row[3].isoformat() if row[3] is not None else None,
-                    'items': row[4] if row[4] is not None else []
-                }
-                for row in rows
-            ]
-            return jsonify({'orders': result}), 200
+            return jsonify({'orders': serialize_orders(rows)}), 200
         except Exception as exc:
             app.logger.error('Erro ao listar pedidos: %s', exc)
+            return jsonify({'error': 'Falha ao listar pedidos.'}), 500
+
+    @app.route('/api/orders/me', methods=['GET'])
+    @token_required
+    def my_orders(payload):
+        try:
+            rows = orders_repo.list_with_items(app.db_conn, payload.get('id'))
+            return jsonify({'orders': serialize_orders(rows)}), 200
+        except Exception as exc:
+            app.logger.error('Erro ao listar meus pedidos: %s', exc)
             return jsonify({'error': 'Falha ao listar pedidos.'}), 500
 
     @app.route('/api/orders/stats', methods=['GET'])

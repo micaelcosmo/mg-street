@@ -85,7 +85,7 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
       subtotal por linha e contador somando quantidades.
 - [x] Validação de entrada amigável: e-mail (`validation.is_valid_email`), senha mínima,
       preço numérico e não-negativo — com mensagens 400 claras.
-- [ ] "Meus pedidos" do cliente: `GET /api/orders/me` + página/seção.
+- [x] "Meus pedidos" do cliente: `GET /api/orders/me` (filtra por usuário) + painel no shop.
 
 ### Fase B — Loja real (produção e integrações)
 - [ ] Pagamento real (gateway: ex. Stripe/Mercado Pago) integrado ao checkout.

@@ -38,8 +38,13 @@ def create_with_items(conn, user_id, items, total):
         conn.autocommit = True
 
 
-def list_with_items(conn):
-    """Retorna linhas (id, user_id, total, created_at, items) com itens agregados."""
+def list_with_items(conn, user_id=None):
+    """Retorna linhas (id, user_id, total, created_at, items) com itens agregados.
+
+    Se `user_id` for informado, filtra apenas os pedidos daquele usuário.
+    """
+    where = "WHERE o.user_id = %s " if user_id is not None else ""
+    params = (user_id,) if user_id is not None else ()
     with conn.cursor() as cursor:
         cursor.execute(
             "SELECT o.id, o.user_id, o.total, o.created_at, "
@@ -49,7 +54,9 @@ def list_with_items(conn):
             "'options', oi.selected_options)) "
             "FILTER (WHERE oi.id IS NOT NULL), '[]') AS items "
             "FROM orders o LEFT JOIN order_items oi ON oi.order_id = o.id "
-            "GROUP BY o.id ORDER BY o.created_at DESC"
+            + where
+            + "GROUP BY o.id ORDER BY o.created_at DESC",
+            params,
         )
         return cursor.fetchall()
 

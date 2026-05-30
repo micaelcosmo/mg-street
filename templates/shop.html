@@ -15,6 +15,7 @@
                 <p class="subtitle">Escolha por categoria e monte seu carrinho</p>
             </div>
             <div class="loja-actions">
+                <button id="orders-btn" class="btn btn-ghost">Meus pedidos</button>
                 <button id="logout-btn" class="btn btn-ghost">Sair</button>
             </div>
         </div>
@@ -58,6 +59,14 @@
             <div>Total: R$ <span id="cart-total">0.00</span></div>
             <button id="checkout-btn" class="btn">Finalizar Compra</button>
         </footer>
+    </aside>
+
+    <aside id="orders-panel" class="cart-panel" aria-hidden="true">
+        <header>
+            <h3>Meus pedidos</h3>
+            <button id="close-orders" class="btn btn-ghost">Fechar</button>
+        </header>
+        <div id="orders-list" class="cart-items"></div>
     </aside>
 
     <script src="{{ url_for('static', filename='toast.js') }}"></script>
@@ -371,6 +380,41 @@
                 cartPanel.setAttribute('aria-hidden', 'true');
             } catch (err) {
                 alert('Erro de rede ao enviar pedido.');
+            }
+        });
+
+        // Meus pedidos
+        const ordersPanel = document.getElementById('orders-panel');
+        const ordersList = document.getElementById('orders-list');
+        document.getElementById('close-orders').addEventListener('click', function () {
+            ordersPanel.setAttribute('aria-hidden', 'true');
+        });
+        document.getElementById('orders-btn').addEventListener('click', async function () {
+            ordersPanel.setAttribute('aria-hidden', 'false');
+            ordersList.innerHTML = '<p class="muted">Carregando...</p>';
+            try {
+                const resp = await fetch('/api/orders/me', { headers: { Authorization: `Bearer ${getToken()}` } });
+                if (!resp.ok) { ordersList.innerHTML = '<p class="muted">Não foi possível carregar.</p>'; return; }
+                const orders = (await resp.json()).orders || [];
+                if (!orders.length) { ordersList.innerHTML = '<p class="muted">Você ainda não tem pedidos.</p>'; return; }
+                ordersList.innerHTML = '';
+                orders.forEach(function (order) {
+                    const itemsText = (order.items || []).map(function (it) { return `${it.name} x${it.quantity || 1}`; }).join(', ');
+                    const when = order.created_at ? new Date(order.created_at).toLocaleString('pt-BR') : '';
+                    const div = document.createElement('div');
+                    div.className = 'cart-item';
+                    div.innerHTML = `
+                        <div>
+                            <strong>Pedido #${order.id}</strong>
+                            <div class="muted">${itemsText}</div>
+                            <div class="muted">${when}</div>
+                        </div>
+                        <div>R$ ${Number(order.total).toFixed(2)}</div>
+                    `;
+                    ordersList.appendChild(div);
+                });
+            } catch (err) {
+                ordersList.innerHTML = '<p class="muted">Erro de rede.</p>';
             }
         });
 
