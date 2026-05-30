@@ -133,7 +133,6 @@ Notas do contrato (o nome das chaves JSON é estável; o schema interno é norma
 
 (rastreadas como tarefas em `04-tasks.md`)
 
-- **`showToast()` duplicado** em `login.html` e `shop.html` (JS não reutilizável).
 - **Decode de JWT manual** (`parseJwt`) no frontend é frágil.
 - **Carrinho em `sessionStorage`** — não persiste entre abas/refresh, não sincroniza com servidor.
 ### Decisão: transações e `autocommit`

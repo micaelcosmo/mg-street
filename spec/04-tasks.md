@@ -52,7 +52,7 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
       única; checkout usa transação explícita). Rationale em `02-architecture.md`.
 - [x] Rate limiting em `/api/login` (limiter in-memory por IP+email, 429 ao exceder;
       `LOGIN_RATE_LIMIT`/`LOGIN_RATE_WINDOW`). Sem dependência nova.
-- [ ] Unificar `showToast()` num único JS reutilizável (remover duplicação).
+- [x] Unificar `showToast()` em `static/toast.js` (referenciado por login/shop; remove duplicação).
 - [ ] Substituir `parseJwt` manual por verificação robusta no frontend.
 
 ### Endurecimento
