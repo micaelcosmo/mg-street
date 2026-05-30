@@ -9,25 +9,6 @@ def test_ping(client):
     assert resp.get_json()["status"] == "ok"
 
 
-def test_products_require_token(client):
-    resp = client.get("/api/products")
-    assert resp.status_code == 401
-
-
-def test_create_product_requires_admin(client, application):
-    token = jwt.encode(
-        {"id": 1, "role": "user"},
-        application.config["JWT_SECRET"],
-        algorithm="HS256",
-    )
-    resp = client.post(
-        "/api/products",
-        json={"name": "Camiseta", "price": 10},
-        headers={"Authorization": f"Bearer {token}"},
-    )
-    assert resp.status_code == 403
-
-
 def test_login_success_returns_token_with_exp(client, application, set_cursor):
     password_hash = hash_password("minhasenha")
     set_cursor(fetchone=(1, password_hash, "admin"))

@@ -39,7 +39,8 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
 ## Próximas tarefas
 
 ### Testes (completar cobertura)
-- [ ] Integração de todos os endpoints de produtos (POST/GET/DELETE) com mock de banco.
+- [x] Integração de todos os endpoints de produtos (POST/GET/DELETE) com mock de banco
+      (`tests/test_integration_products.py`: token/role, sucesso, 400 e 404).
 - [ ] Aceitação E2E rodando contra Postgres de teste (`MGSTREET_DB_TESTS=1`):
       checkout cria `orders` + `order_items`; `/api/orders` retorna itens agregados.
 
