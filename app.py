@@ -10,6 +10,7 @@ import psycopg2
 from functools import wraps
 
 import qa_report
+from logging_setup import configure_logging
 from ratelimit import RateLimiter
 from validation import is_valid_email
 from repositories import (
@@ -324,6 +325,8 @@ def create_app():
     app.config["POSTGRES_HOST"] = os.getenv("POSTGRES_HOST", "db")
     app.config["JWT_SECRET"] = os.getenv("JWT_SECRET", "mgstreet_jwt_secret")
     app.config["JWT_EXP_HOURS"] = int(os.getenv("JWT_EXP_HOURS", 12))
+
+    configure_logging(app)
 
     # Rate limiting in-memory para mitigar abuso (login/registro/checkout).
     app.login_limiter = RateLimiter(

@@ -103,5 +103,5 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
       recusado — o token não tem escopo `workflow`. Habilitar: dar escopo `workflow` ao PAT
       e versionar o arquivo, **ou** criar pela aba Actions do GitHub colando o conteúdo.
 - [x] Rate limiting em `register` (por IP) e `checkout` (por usuário) reusando `RateLimiter`.
-- [ ] Observabilidade: logs estruturados.
+- [x] Observabilidade: logs estruturados em JSON (opt-in via `LOG_JSON`), sem afetar o dev.
 - [ ] Auditoria de acessibilidade/responsividade.
