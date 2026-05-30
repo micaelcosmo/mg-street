@@ -119,7 +119,7 @@ momento da compra (preservam o histórico mesmo se o produto mudar/for removido)
 
 Notas do contrato (o nome das chaves JSON é estável; o schema interno é normalizado):
 - **`category`** em produtos é o **nome** da categoria (string). No POST, é opcional e a
-  categoria é criada sob demanda (`resolve_category_id`); no GET vem via `LEFT JOIN`.
+  categoria é criada sob demanda (`categories.resolve_id`); no GET vem via `LEFT JOIN`.
 - **`/api/checkout`** cria 1 `orders` + N `order_items` de forma **atômica** (transação;
   `autocommit` desligado só nesse bloco, com `rollback` no erro). `total` é calculado no
   servidor por `calculate_cart_total`.
@@ -134,9 +134,19 @@ Notas do contrato (o nome das chaves JSON é estável; o schema interno é norma
 - **`showToast()` duplicado** em `login.html` e `shop.html` (JS não reutilizável).
 - **Decode de JWT manual** (`parseJwt`) no frontend é frágil.
 - **Carrinho em `sessionStorage`** — não persiste entre abas/refresh, não sincroniza com servidor.
-- **`autocommit=True` global** na conexão — só o `/api/checkout` usa transação explícita;
-  outras rotas multi-statement não são transacionais (avaliar `autocommit=False` global
-  com `rollback` em todos os `except`).
+### Decisão: transações e `autocommit`
+
+A conexão usa **`autocommit=True`** (uma conexão única compartilhada pela app). Avaliado
+mudar para `autocommit=False` global — **decidido manter `autocommit=True`**:
+
+- Com **uma conexão compartilhada**, qualquer `except` sem `rollback` deixaria a conexão
+  em estado "transação abortada", quebrando **todas** as requisições seguintes. Exigiria
+  `rollback` disciplinado em cada handler + uma rede de segurança no teardown.
+- As operações são **single-statement** (atômicas por si). O único fluxo multi-statement,
+  `/api/checkout`, já abre **transação explícita** em `orders.create_with_items`
+  (`autocommit=False` só no bloco, `rollback` no erro, religado no `finally`).
+
+Reavaliar se/quando migrar para pool de conexões por requisição.
 
 > Resolvidas neste ciclo: índices/constraints/FKs adicionados; `price >= 0` via CHECK;
 > itens de pedido normalizados (`order_items`), eliminando o `json.loads` sobre JSONB.

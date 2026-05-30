@@ -48,7 +48,8 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
 ### Dívidas técnicas (de `02-architecture.md`)
 - [x] Extrair SQL das rotas para uma camada de dados (`repositories/`, sem ORM): users,
       products, orders, categories. Rotas ficaram finas; testes preservados.
-- [ ] Avaliar `autocommit=False` global com `rollback` em todos os `except`.
+- [x] Avaliar `autocommit=False` global — decidido **manter `autocommit=True`** (conexão
+      única; checkout usa transação explícita). Rationale em `02-architecture.md`.
 - [ ] Rate limiting em `/api/login`.
 - [ ] Unificar `showToast()` num único JS reutilizável (remover duplicação).
 - [ ] Substituir `parseJwt` manual por verificação robusta no frontend.
