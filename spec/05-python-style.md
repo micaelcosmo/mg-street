@@ -249,18 +249,23 @@ Mantemos o logger do Flask (já usado em `app.py`). Convenções:
 
 O registro do que foi feito vive no histórico Git (não em arquivos `relatorio_*.txt`).
 
-- **Commit**: prefixo de tipo + resumo curto no imperativo, em PT-BR.
-  Tipos: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`.
+- **Commit**: prefixo de tipo (`feat`/`fix`/`refactor`/`test`/`docs`/`chore`). O **assunto
+  é de alto nível** — a intenção/o quê, legível por quem não é técnico. **Detalhe técnico
+  (arquivos, como, SQL, flags) vai no corpo**, nunca no assunto.
 
   ```
-  feat: cria endpoint de estatísticas de pedidos
+  feat: mostrar estatísticas de vendas no painel
 
-  - O quê: adiciona GET /api/pedidos/stats (admin).
-  - Porquê: dashboard precisa de total e receita.
+  - O quê: GET /api/orders/stats (admin) com total e receita.
+  - Porquê: o dashboard precisa do resumo de vendas.
   - Como testar: pytest tests/test_integration_api.py
   ```
 
 - **PR**: descreva **o quê / porquê / como testar**; referencie a tarefa em `04-tasks.md`.
+
+- **Tags/versões**: marque **milestones** com `0.x.x` anotadas (por fase do backlog ou
+  lote coeso de features) — sem exagerar, mas sem deixar muitos commits sem tag. Sem `1.0`
+  tão cedo.
 
 ## 8. Checklist rápido antes de finalizar um `.py`
 
