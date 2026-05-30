@@ -99,7 +99,9 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
 
 ### Fase C — Qualidade / escala
 - [ ] Paginação + busca server-side de produtos.
-- [ ] CI: rodar `pytest` a cada push.
+- [ ] CI: workflow **pronto** em `.github/workflows/ci.yml` (roda `pytest`), mas o push foi
+      recusado — o token não tem escopo `workflow`. Habilitar: dar escopo `workflow` ao PAT
+      e versionar o arquivo, **ou** criar pela aba Actions do GitHub colando o conteúdo.
 - [x] Rate limiting em `register` (por IP) e `checkout` (por usuário) reusando `RateLimiter`.
 - [ ] Observabilidade: logs estruturados.
 - [ ] Auditoria de acessibilidade/responsividade.
