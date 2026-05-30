@@ -59,5 +59,6 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
       no redirect (o backend já garante acesso via `@admin_required`).
 
 ### Endurecimento
-- [ ] Trocar segredos fracos do `.env` por valores aleatórios fortes em produção.
-- [ ] Usuário não-root no `Dockerfile`; healthcheck no container web.
+- [ ] Trocar segredos fracos do `.env` por valores aleatórios fortes em produção
+      (ação de ops/deploy; não versionado).
+- [x] Usuário não-root (`appuser`) no `Dockerfile` + healthcheck do `web` (via `/ping`).

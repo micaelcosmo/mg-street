@@ -13,8 +13,8 @@ repositories/         # camada de dados — SQL das rotas isolado por entidade
   categories.py       #   resolve_id (upsert)
 templates/            # login.html, admin.html, shop.html (HTML + JS inline)
 static/               # style.css, logo/
-Dockerfile            # python:3.11-slim, expõe 5001
-docker-compose.yml    # db (postgres:18-alpine, volume em /var/lib/postgresql, host 5433) + web
+Dockerfile            # python:3.11-slim, usuário não-root (appuser), expõe 5001
+docker-compose.yml    # db (postgres:18-alpine, host 5433) + web (healthcheck via /ping)
 requirements.txt      # deps com versões fixas
 tests/                # suíte pytest (3 níveis)
 spec/                 # esta documentação SDD
