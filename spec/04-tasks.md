@@ -94,7 +94,8 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
 - [x] Upload **local** de imagens (POST `/api/upload`, admin): salva em `static/uploads/` e preenche o `image_url`. (Prod real: usar volume/objeto — não disco efêmero.)
 - [x] Servir em produção: `wsgi.py` (gunicorn `wsgi:app`) + `docker-compose.prod.yml` (FLASK_ENV=production, debug off). Dev segue com `python app.py`.
 - [ ] Segredos fortes + HTTPS (reverse proxy).
-- [ ] E-mails transacionais (confirmação de pedido/registro).
+- [x] E-mails transacionais: `emailer.py` (smtplib, sem dep) — boas-vindas no cadastro e
+      confirmação quando o pedido é pago. Sem SMTP, apenas loga (dev); SMTP real é opcional.
 - [x] Estoque/inventário: coluna `stock` em products; admin define; loja mostra "Esgotado";
       checkout dá baixa atômica e responde 409 se faltar saldo.
 - [x] Persistir carrinho no servidor: tabela `carts` (1 por usuário) + `GET`/`PUT /api/cart`; o shop sincroniza (aditivo, sessionStorage segue dirigindo a UI).

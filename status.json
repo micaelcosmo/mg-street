@@ -1,9 +1,9 @@
 {
   "feito": [
-    "Fase A + estoque + busca + produção",
-    "Upload + carrinho persistente",
-    "Pagamento via Mercado Pago (Checkout Pro, sandbox)"
+    "Pagamento (Mercado Pago, sandbox)",
+    "E-mails transacionais (boas-vindas/confirmação)",
+    "Backlog construível CONCLUÍDO"
   ],
-  "fazendo": "Pagamento integrado — milestone 0.7.0",
-  "proximo": "Você: criar conta MP + pôr MP_ACCESS_TOKEN de teste no .env e validar no sandbox"
+  "fazendo": "Backlog construível concluído — milestone 0.8.0",
+  "proximo": "Só restam itens de ops/sua ação: validar pagamento no sandbox (token de teste), HTTPS+segredos, CI (escopo workflow)"
 }

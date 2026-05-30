@@ -75,6 +75,17 @@ def list_with_items(conn, user_id=None):
         return cursor.fetchall()
 
 
+def get_user_email(conn, order_id):
+    """E-mail do dono do pedido (para confirmação); None se não houver."""
+    with conn.cursor() as cursor:
+        cursor.execute(
+            "SELECT u.email FROM orders o JOIN users u ON u.id = o.user_id WHERE o.id = %s",
+            (order_id,),
+        )
+        row = cursor.fetchone()
+    return row[0] if row else None
+
+
 def mark_paid(conn, order_id, payment_id):
     """Marca o pedido como pago e guarda o id do pagamento."""
     with conn.cursor() as cursor:

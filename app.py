@@ -13,6 +13,7 @@ from werkzeug.utils import secure_filename
 
 import qa_report
 import payments
+import emailer
 from logging_setup import configure_logging
 from ratelimit import RateLimiter
 from validation import is_valid_email
@@ -91,6 +92,20 @@ def serialize_orders(rows):
             }
         )
     return result
+
+
+def send_order_confirmation(conn, order_id):
+    """Envia (best-effort) o e-mail de confirmação do pedido pago."""
+    try:
+        email = orders_repo.get_user_email(conn, order_id)
+        if email:
+            emailer.send_email(
+                email,
+                f"Pedido #{order_id} confirmado — MG Street",
+                f"Recebemos o pagamento do seu pedido #{order_id}. Obrigado pela compra!",
+            )
+    except Exception:
+        pass
 
 
 def token_required(f):
@@ -421,6 +436,10 @@ def create_app():
 
         try:
             users_repo.create(app.db_conn, name, email, hash_password(password))
+            try:
+                emailer.send_email(email, "Bem-vindo à MG Street", f"Olá {name}, sua conta foi criada!")
+            except Exception:
+                pass
             return jsonify({"message": "Registro criado com sucesso."}), 201
         except Exception as exc:
             app.logger.error("Falha no registro: %s", exc)
@@ -709,7 +728,9 @@ def create_app():
             if not info:
                 return jsonify({'error': 'Pagamento indisponível.'}), 400
             if info.get('status') == 'approved' and info.get('external_reference'):
-                orders_repo.mark_paid(app.db_conn, int(info['external_reference']), str(payment_id))
+                order_id = int(info['external_reference'])
+                orders_repo.mark_paid(app.db_conn, order_id, str(payment_id))
+                send_order_confirmation(app.db_conn, order_id)
                 return jsonify({'status': 'paid'}), 200
             return jsonify({'status': info.get('status') or 'unknown'}), 200
         except Exception as exc:
@@ -725,7 +746,9 @@ def create_app():
             try:
                 info = payments.get_payment(payment_id)
                 if info and info.get('status') == 'approved' and info.get('external_reference'):
-                    orders_repo.mark_paid(app.db_conn, int(info['external_reference']), str(payment_id))
+                    order_id = int(info['external_reference'])
+                    orders_repo.mark_paid(app.db_conn, order_id, str(payment_id))
+                    send_order_confirmation(app.db_conn, order_id)
             except Exception as exc:
                 app.logger.error('Erro no webhook de pagamento: %s', exc)
         return '', 200
