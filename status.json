@@ -7,5 +7,9 @@
     "Cadastro de cliente (UI + link no login)"
   ],
   "fazendo": "Fase A — quantidade no carrinho (+/-, agrupar item repetido, remover)",
-  "proximo": "Validação de entrada amigável; 'Meus pedidos' do cliente"
+  "proximo": "Validação de entrada amigável; 'Meus pedidos' do cliente",
+  "custo": {
+    "faixa": "Estimativa manual: médio",
+    "nota": "O app não acessa o faturamento real da Claude — valor exato no painel de billing da Anthropic. Este box é atualizado à mão."
+  }
 }

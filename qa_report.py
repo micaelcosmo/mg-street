@@ -152,6 +152,21 @@ def _status_panel(status):
         </section>"""
 
 
+def _cost_box(status):
+    """Quadrado de custo (estimativa MANUAL — o app não acessa o faturamento real)."""
+    custo = (status or {}).get("custo")
+    if not custo:
+        return ""
+    faixa = html.escape(str(custo.get("faixa", "—")))
+    nota = html.escape(str(custo.get("nota", "")))
+    return f"""
+        <section class="cost">
+            <h2>💸 Custo Claude (estimativa)</h2>
+            <div class="cost-val">{faixa}</div>
+            <div class="cost-note">{nota}</div>
+        </section>"""
+
+
 def render_html(summary, cases, raw_tail, generated_at, refresh_seconds=15):
     """Renderiza o relatório de testes como HTML, dividido por nível."""
     ok = summary["failures"] == 0 and summary["errors"] == 0
@@ -165,7 +180,9 @@ def render_html(summary, cases, raw_tail, generated_at, refresh_seconds=15):
         + _section("Baixo nível", "unitário — funções isoladas", baixo)
     )
     raw = html.escape(raw_tail)
-    status_html = _status_panel(load_status())
+    status = load_status()
+    status_html = _status_panel(status)
+    cost_html = _cost_box(status)
 
     return f"""<!DOCTYPE html>
 <html lang="pt-BR">
@@ -190,6 +207,10 @@ def render_html(summary, cases, raw_tail, generated_at, refresh_seconds=15):
         .status-grid ul {{ margin: 6px 0 0 18px; padding: 0; font-size: .85rem; }}
         .status-grid p {{ margin: 6px 0 0 0; font-size: .9rem; }}
         @media (max-width: 720px) {{ .status-grid {{ grid-template-columns: 1fr; }} }}
+        .cost {{ background: #fff; border: 2px solid #e3ddcf; border-left: 6px solid #6f4bd9; border-radius: 8px; padding: 12px 16px; margin-bottom: 18px; }}
+        .cost h2 {{ margin: 0 0 4px 0; font-size: 1.0rem; }}
+        .cost-val {{ font-size: 1.3rem; font-weight: 700; }}
+        .cost-note {{ color: #777; font-size: .8rem; margin-top: 4px; }}
         .level {{ margin-bottom: 22px; }}
         .level h2 {{ margin: 0 0 2px 0; font-size: 1.1rem; }}
         .level h2 small {{ font-weight: 400; color: #777; font-size: .8rem; }}
@@ -219,6 +240,7 @@ def render_html(summary, cases, raw_tail, generated_at, refresh_seconds=15):
             <div class="card"><div class="n">{summary['time']:.2f}s</div><div class="l">Duração</div></div>
         </div>
 {status_html}
+{cost_html}
 {sections}
         <details>
             <summary>Saída bruta do pytest</summary>
