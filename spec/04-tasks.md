@@ -41,8 +41,9 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
 ### Testes (completar cobertura)
 - [x] Integração de todos os endpoints de produtos (POST/GET/DELETE) com mock de banco
       (`tests/test_integration_products.py`: token/role, sucesso, 400 e 404).
-- [ ] Aceitação E2E rodando contra Postgres de teste (`MGSTREET_DB_TESTS=1`):
-      checkout cria `orders` + `order_items`; `/api/orders` retorna itens agregados.
+- [x] Aceitação E2E rodando contra Postgres real (`MGSTREET_DB_TESTS=1`, host 5433):
+      jornada registrar→logar→checkout cria `orders`+`order_items`; admin valida itens
+      agregados e stats; limpa os dados ao final (`tests/test_acceptance_checkout.py`).
 
 ### Dívidas técnicas (de `02-architecture.md`)
 - [ ] Extrair SQL cru para uma camada de dados / avaliar ORM (SQLAlchemy).

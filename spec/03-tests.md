@@ -37,11 +37,21 @@ Validam cada endpoint com a camada de dados mockada ou real.
 ## Como rodar
 
 ```bash
-pytest                 # roda unit + integração (mockados), pula E2E que exige banco
-MGSTREET_DB_TESTS=1 pytest   # inclui os testes de aceitação (precisa de Postgres no .env)
+# Local (venv): roda unit + integração (mockados); pula o E2E.
+pytest
+
+# E2E (jornada de compra) contra o Postgres do Docker (publicado no host em 5433).
+# Atencao: a porta 5432 pode estar com um Postgres nativo; aponte para 5433.
+MGSTREET_DB_TESTS=1 POSTGRES_HOST=localhost POSTGRES_PORT=5433 pytest tests/test_acceptance_checkout.py
+
+# Alternativa: rodar o E2E dentro do container (usa db:5432 interno).
+docker compose exec -e MGSTREET_DB_TESTS=1 web pytest tests/test_acceptance_checkout.py
 ```
+
+O E2E registra um comprador único, faz checkout, valida o pedido/itens/estatísticas
+pelo admin e **limpa os dados criados** ao final (pedido em cascata + usuário).
 
 ## Estado atual da suíte
 
-`tests/` contém **sementes** representativas de cada nível. Completar a cobertura
-(todos os endpoints e jornadas) é uma tarefa rastreada em `04-tasks.md`.
+Cobertura: unit (`hash/verify`, `calculate_cart_total`), integração mockada (login,
+checkout, todos os endpoints de produtos) e aceitação E2E (jornada de compra).
