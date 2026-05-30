@@ -12,6 +12,7 @@ from functools import wraps
 from werkzeug.utils import secure_filename
 
 import qa_report
+import payments
 from logging_setup import configure_logging
 from ratelimit import RateLimiter
 from validation import is_valid_email
@@ -72,17 +73,24 @@ def serialize_products(rows):
 
 
 def serialize_orders(rows):
-    """Converte linhas de pedido (id, user_id, total, created_at, items)."""
-    return [
-        {
-            "id": row[0],
-            "user_id": row[1],
-            "total": float(row[2]) if row[2] is not None else 0,
-            "created_at": row[3].isoformat() if row[3] is not None else None,
-            "items": row[4] if row[4] is not None else [],
-        }
-        for row in rows
-    ]
+    """Converte linhas de pedido (id, user_id, total, created_at, status, items)."""
+    result = []
+    for row in rows:
+        if len(row) >= 6:
+            status, items = row[4], row[5]
+        else:
+            status, items = "pending", row[4]
+        result.append(
+            {
+                "id": row[0],
+                "user_id": row[1],
+                "total": float(row[2]) if row[2] is not None else 0,
+                "created_at": row[3].isoformat() if row[3] is not None else None,
+                "status": status,
+                "items": items if items is not None else [],
+            }
+        )
+    return result
 
 
 def token_required(f):
@@ -283,12 +291,20 @@ def create_orders_table(app):
                 id SERIAL PRIMARY KEY,
                 user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
                 total NUMERIC(10, 2) NOT NULL CHECK (total >= 0),
+                status TEXT NOT NULL DEFAULT 'pending'
+                    CHECK (status IN ('pending', 'paid', 'failed', 'cancelled')),
+                payment_id TEXT,
                 created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
             );
             """
         )
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders (user_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders (created_at DESC);")
+        # Status do pagamento — idempotente para schema existente.
+        cursor.execute(
+            "ALTER TABLE orders ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'pending';"
+        )
+        cursor.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_id TEXT;")
     app.db_conn.commit()
     app.logger.info("Tabela orders garantida no banco.")
 
@@ -349,6 +365,7 @@ def create_app():
     app.config["JWT_SECRET"] = os.getenv("JWT_SECRET", "mgstreet_jwt_secret")
     app.config["JWT_EXP_HOURS"] = int(os.getenv("JWT_EXP_HOURS", 12))
     app.config["MAX_CONTENT_LENGTH"] = int(os.getenv("MAX_UPLOAD_BYTES", 5 * 1024 * 1024))
+    app.config["PUBLIC_BASE_URL"] = os.getenv("PUBLIC_BASE_URL", "http://localhost:5001")
 
     configure_logging(app)
 
@@ -657,12 +674,61 @@ def create_app():
 
         try:
             order_id = orders_repo.create_with_items(app.db_conn, payload.get('id'), items, total)
-            return jsonify({'message': 'Pedido registrado.', 'order_id': order_id}), 201
         except orders_repo.OutOfStockError as exc:
             return jsonify({'error': f'Estoque insuficiente para "{exc}".'}), 409
         except Exception as exc:
             app.logger.error('Falha ao criar pedido: %s', exc)
             return jsonify({'error': 'Falha ao criar pedido.'}), 500
+
+        # Pagamento configurado? Gera a preferência (Checkout Pro) e devolve o init_point.
+        if payments.is_enabled():
+            try:
+                pref = payments.create_preference(order_id, items, app.config['PUBLIC_BASE_URL'])
+            except Exception as exc:
+                app.logger.error('Falha ao criar preferência de pagamento: %s', exc)
+                pref = None
+            if pref and pref.get('init_point'):
+                return jsonify({
+                    'message': 'Pedido criado. Redirecionando para o pagamento.',
+                    'order_id': order_id,
+                    'init_point': pref['init_point'],
+                    'sandbox_init_point': pref.get('sandbox_init_point'),
+                }), 201
+
+        return jsonify({'message': 'Pedido registrado.', 'order_id': order_id}), 201
+
+    @app.route('/api/payments/confirm', methods=['POST'])
+    @token_required
+    def confirm_payment(payload):
+        data = request.get_json() or {}
+        payment_id = data.get('payment_id')
+        if not payment_id:
+            return jsonify({'error': 'payment_id ausente.'}), 400
+        try:
+            info = payments.get_payment(payment_id)
+            if not info:
+                return jsonify({'error': 'Pagamento indisponível.'}), 400
+            if info.get('status') == 'approved' and info.get('external_reference'):
+                orders_repo.mark_paid(app.db_conn, int(info['external_reference']), str(payment_id))
+                return jsonify({'status': 'paid'}), 200
+            return jsonify({'status': info.get('status') or 'unknown'}), 200
+        except Exception as exc:
+            app.logger.error('Erro ao confirmar pagamento: %s', exc)
+            return jsonify({'error': 'Falha ao confirmar pagamento.'}), 500
+
+    @app.route('/api/payments/webhook', methods=['POST'])
+    def payment_webhook():
+        # MP notifica via corpo {type, data:{id}} ou querystring; respondemos 200 sempre.
+        data = request.get_json(silent=True) or {}
+        payment_id = (data.get('data') or {}).get('id') or request.args.get('data.id') or request.args.get('id')
+        if payment_id:
+            try:
+                info = payments.get_payment(payment_id)
+                if info and info.get('status') == 'approved' and info.get('external_reference'):
+                    orders_repo.mark_paid(app.db_conn, int(info['external_reference']), str(payment_id))
+            except Exception as exc:
+                app.logger.error('Erro no webhook de pagamento: %s', exc)
+        return '', 200
 
     @app.route('/api/preview_token', methods=['GET'])
     @admin_required

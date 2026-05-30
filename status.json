@@ -1,10 +1,9 @@
 {
   "feito": [
-    "Fase A completa + estoque + rate limits",
-    "Busca/paginação + produção (gunicorn)",
-    "Logs + a11y + upload de imagens",
-    "Carrinho persistente no servidor"
+    "Fase A + estoque + busca + produção",
+    "Upload + carrinho persistente",
+    "Pagamento via Mercado Pago (Checkout Pro, sandbox)"
   ],
-  "fazendo": "Pagamento via Mercado Pago (Checkout Pro, sandbox)",
-  "proximo": "Validar no sandbox com Pix/cartão de teste; webhook em produção"
+  "fazendo": "Pagamento integrado — milestone 0.7.0",
+  "proximo": "Você: criar conta MP + pôr MP_ACCESS_TOKEN de teste no .env e validar no sandbox"
 }

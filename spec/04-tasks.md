@@ -88,7 +88,9 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
 - [x] "Meus pedidos" do cliente: `GET /api/orders/me` (filtra por usuário) + painel no shop.
 
 ### Fase B — Loja real (produção e integrações)
-- [ ] Pagamento real (gateway: ex. Stripe/Mercado Pago) integrado ao checkout.
+- [x] Pagamento real: **Mercado Pago Checkout Pro** (Pix/cartão/débito) via SDK oficial,
+      modo sandbox. `payments.py` (import lazy), pedido `pending`→`paid` por confirm/webhook.
+      Sem `MP_ACCESS_TOKEN`, mantém o fluxo sem pagamento.
 - [x] Upload **local** de imagens (POST `/api/upload`, admin): salva em `static/uploads/` e preenche o `image_url`. (Prod real: usar volume/objeto — não disco efêmero.)
 - [x] Servir em produção: `wsgi.py` (gunicorn `wsgi:app`) + `docker-compose.prod.yml` (FLASK_ENV=production, debug off). Dev segue com `python app.py`.
 - [ ] Segredos fortes + HTTPS (reverse proxy).

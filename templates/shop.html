@@ -357,8 +357,6 @@
                 return;
             }
 
-            alert('Verificação de envio em andamento');
-
             const token = localStorage.getItem(TOKEN_KEY);
             try {
                 const resp = await fetch('/api/checkout', {
@@ -377,7 +375,13 @@
                 }
 
                 const data = await resp.json();
-                alert('Pedido enviado com sucesso. ID: ' + (data.order_id || 'N/A'));
+                if (data.init_point) {
+                    // Pagamento configurado: vai pro checkout do Mercado Pago.
+                    window.location.href = data.init_point;
+                    return;
+                }
+                // Fallback (sem pagamento configurado): pedido registrado.
+                alert('Pedido registrado. ID: ' + (data.order_id || 'N/A'));
                 persistCart([]);
                 updateCartUI();
                 cartPanel.setAttribute('aria-hidden', 'true');
@@ -445,8 +449,41 @@
             updateCartUI();
         }
 
+        // Retorno do Mercado Pago (back_url): confirma o pagamento e limpa o carrinho.
+        async function handlePaymentReturn() {
+            const params = new URLSearchParams(window.location.search);
+            const payment = params.get('payment');
+            if (!payment) return;
+            const paymentId = params.get('payment_id') || params.get('collection_id');
+            if (payment === 'success' && paymentId) {
+                try {
+                    const resp = await fetch('/api/payments/confirm', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
+                        body: JSON.stringify({ payment_id: paymentId }),
+                    });
+                    const data = await resp.json().catch(() => ({}));
+                    if (resp.ok && data.status === 'paid') {
+                        showToast('Pagamento aprovado! Pedido confirmado.');
+                        persistCart([]);
+                    } else {
+                        showToast('Pagamento ' + (data.status || 'pendente') + '.');
+                    }
+                } catch (err) {
+                    showToast('Não foi possível confirmar o pagamento.');
+                }
+            } else if (payment === 'failure') {
+                showToast('Pagamento não concluído.');
+            } else if (payment === 'pending') {
+                showToast('Pagamento pendente.');
+            }
+            window.history.replaceState({}, '', '/shop');
+            updateCartUI();
+        }
+
         loadProducts();
         loadServerCart();
+        handlePaymentReturn();
     </script>
 </body>
 </html>

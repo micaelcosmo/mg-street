@@ -61,7 +61,7 @@ def list_with_items(conn, user_id=None):
     params = (user_id,) if user_id is not None else ()
     with conn.cursor() as cursor:
         cursor.execute(
-            "SELECT o.id, o.user_id, o.total, o.created_at, "
+            "SELECT o.id, o.user_id, o.total, o.created_at, o.status, "
             "COALESCE(json_agg(json_build_object("
             "'product_id', oi.product_id, 'name', oi.product_name, "
             "'unit_price', oi.unit_price, 'quantity', oi.quantity, "
@@ -73,6 +73,16 @@ def list_with_items(conn, user_id=None):
             params,
         )
         return cursor.fetchall()
+
+
+def mark_paid(conn, order_id, payment_id):
+    """Marca o pedido como pago e guarda o id do pagamento."""
+    with conn.cursor() as cursor:
+        cursor.execute(
+            "UPDATE orders SET status = 'paid', payment_id = %s WHERE id = %s",
+            (payment_id, order_id),
+        )
+    conn.commit()
 
 
 def stats(conn):

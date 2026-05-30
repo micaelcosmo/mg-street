@@ -83,6 +83,8 @@ Seed: `camisetas`, `calcas`, `meias` (idempotente, `ON CONFLICT DO NOTHING`).
 | id | SERIAL PK |
 | user_id | INTEGER FK → users(id) ON DELETE SET NULL |
 | total | NUMERIC(10,2) NOT NULL CHECK (total >= 0) |
+| status | TEXT NOT NULL DEFAULT 'pending' CHECK IN ('pending','paid','failed','cancelled') |
+| payment_id | TEXT (id do pagamento no Mercado Pago) |
 | created_at | TIMESTAMPTZ NOT NULL DEFAULT now() |
 
 Índices: `idx_orders_user_id`, `idx_orders_created_at` (DESC).
@@ -124,6 +126,8 @@ momento da compra (preservam o histórico mesmo se o produto mudar/for removido)
 | GET | `/api/cart` | token | — | 200 `{items:[...]}` (carrinho salvo) |
 | PUT | `/api/cart` | token | `{items:[...]}` | 200 `{message}` |
 | POST | `/api/upload` | admin | arquivo `file` (multipart) | 201 `{url}` |
+| POST | `/api/payments/confirm` | token | `{payment_id}` | 200 `{status}` (marca `paid` se aprovado) |
+| POST | `/api/payments/webhook` | — | notificação MP | 200 (confirma pagamento; prod) |
 | GET | `/api/orders/stats` | admin | — | 200 `{total_orders,total_revenue}` |
 | POST | `/api/checkout` | token | `{items:[{id,name,price,quantity}]}` | 201 `{message,order_id}` |
 | GET | `/api/preview_token` | admin | — | 200 `{token,user}` |
@@ -143,6 +147,10 @@ Notas do contrato (o nome das chaves JSON é estável; o schema interno é norma
   `{product_id, name, unit_price, quantity}`.
 - **`/tests/report`** (somente `FLASK_ENV=development`) roda a suíte via `qa_report.py`
   e renderiza um HTML com placar e detalhes; tem auto-refresh para acompanhar ao vivo.
+- **Pagamento (Mercado Pago Checkout Pro):** `payments.py` isola o SDK (import lazy). No
+  `/api/checkout`, se `MP_ACCESS_TOKEN` existir, cria uma preferência e devolve `init_point`
+  (o frontend redireciona); o pedido nasce `pending` e vira `paid` via `confirm` (retorno
+  `back_url`, dev) ou `webhook` (produção). Sem token, mantém o fluxo sem pagamento.
 
 ## Dívidas técnicas conhecidas
 

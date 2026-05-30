@@ -200,7 +200,7 @@ def test_my_orders_requires_token(client):
 
 
 def test_my_orders_returns_user_orders(client, application, set_cursor):
-    set_cursor(fetchall=[(1, 2, 99.8, None, [{"name": "Camiseta", "quantity": 2}])])
+    set_cursor(fetchall=[(1, 2, 99.8, None, "paid", [{"name": "Camiseta", "quantity": 2}])])
     token = jwt.encode(
         {"id": 2, "role": "user"},
         application.config["JWT_SECRET"],
@@ -211,3 +211,4 @@ def test_my_orders_returns_user_orders(client, application, set_cursor):
     data = resp.get_json()
     assert len(data["orders"]) == 1
     assert data["orders"][0]["id"] == 1
+    assert data["orders"][0]["status"] == "paid"
