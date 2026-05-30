@@ -1,6 +1,7 @@
 import jwt
 
 from app import hash_password
+from ratelimit import RateLimiter
 
 
 def test_ping(client):
@@ -28,6 +29,16 @@ def test_login_invalid_credentials(client, application, set_cursor):
     set_cursor(fetchone=(1, password_hash, "user"))
     resp = client.post("/api/login", json={"email": "a@b.com", "password": "errada"})
     assert resp.status_code == 401
+
+
+def test_login_rate_limited_after_too_many_attempts(client, application, set_cursor):
+    # limiter pequeno e deterministico para o teste
+    application.login_limiter = RateLimiter(max_attempts=2, window_seconds=60)
+    set_cursor(fetchone=None)  # credencial sempre invalida -> 401, mas conta no limiter
+    assert client.post("/api/login", json={"email": "a@b.com", "password": "x"}).status_code == 401
+    assert client.post("/api/login", json={"email": "a@b.com", "password": "x"}).status_code == 401
+    # terceira tentativa excede o limite
+    assert client.post("/api/login", json={"email": "a@b.com", "password": "x"}).status_code == 429
 
 
 def test_checkout_empty_cart_is_rejected(client, application):

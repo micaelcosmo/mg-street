@@ -50,7 +50,8 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
       products, orders, categories. Rotas ficaram finas; testes preservados.
 - [x] Avaliar `autocommit=False` global — decidido **manter `autocommit=True`** (conexão
       única; checkout usa transação explícita). Rationale em `02-architecture.md`.
-- [ ] Rate limiting em `/api/login`.
+- [x] Rate limiting em `/api/login` (limiter in-memory por IP+email, 429 ao exceder;
+      `LOGIN_RATE_LIMIT`/`LOGIN_RATE_WINDOW`). Sem dependência nova.
 - [ ] Unificar `showToast()` num único JS reutilizável (remover duplicação).
 - [ ] Substituir `parseJwt` manual por verificação robusta no frontend.
 

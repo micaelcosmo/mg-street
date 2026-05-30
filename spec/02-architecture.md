@@ -30,8 +30,11 @@ os seeds (boot) seguem nas funções `create_*_table` de `app.py`.
 ## Configuração (via ambiente)
 
 `create_app()` lê de `os.getenv`: `SECRET_KEY`, `POSTGRES_*`, `JWT_SECRET`,
-`JWT_EXP_HOURS`, `PASSWORD_SALT`. Seeds leem `ADMIN_EMAIL/ADMIN_PASSWORD` e
-`DEMO_EMAIL/DEMO_PASSWORD`. Ver `.env.example`.
+`JWT_EXP_HOURS`, `PASSWORD_SALT`, `LOGIN_RATE_LIMIT`/`LOGIN_RATE_WINDOW`. Seeds leem
+`ADMIN_EMAIL/ADMIN_PASSWORD` e `DEMO_EMAIL/DEMO_PASSWORD`. Ver `.env.example`.
+
+`/api/login` é protegido por um **rate limiter in-memory** (`ratelimit.RateLimiter`,
+por `IP+email`): excedido o limite, responde **429**. É por processo (instância única).
 
 ## Modelo de dados (PostgreSQL) — normalizado
 
@@ -130,7 +133,6 @@ Notas do contrato (o nome das chaves JSON é estável; o schema interno é norma
 
 (rastreadas como tarefas em `04-tasks.md`)
 
-- **Sem rate limiting** em `/api/login` (vulnerável a brute-force).
 - **`showToast()` duplicado** em `login.html` e `shop.html` (JS não reutilizável).
 - **Decode de JWT manual** (`parseJwt`) no frontend é frágil.
 - **Carrinho em `sessionStorage`** — não persiste entre abas/refresh, não sincroniza com servidor.

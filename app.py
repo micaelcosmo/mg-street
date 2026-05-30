@@ -9,6 +9,7 @@ import jwt
 import psycopg2
 from functools import wraps
 
+from ratelimit import RateLimiter
 from repositories import (
     categories as categories_repo,
     orders as orders_repo,
@@ -283,6 +284,12 @@ def create_app():
     app.config["JWT_SECRET"] = os.getenv("JWT_SECRET", "mgstreet_jwt_secret")
     app.config["JWT_EXP_HOURS"] = int(os.getenv("JWT_EXP_HOURS", 12))
 
+    # Rate limiting do login (in-memory, por IP+email) para mitigar brute-force.
+    app.login_limiter = RateLimiter(
+        max_attempts=int(os.getenv("LOGIN_RATE_LIMIT", 5)),
+        window_seconds=int(os.getenv("LOGIN_RATE_WINDOW", 60)),
+    )
+
     @app.route("/ping", methods=["GET"])
     def ping():
         return jsonify({"status": "ok", "message": "pong"})
@@ -312,6 +319,10 @@ def create_app():
 
         if not email or not password:
             return jsonify({"error": "Dados incompletos."}), 400
+
+        limiter_key = f"{request.remote_addr}:{email}"
+        if not app.login_limiter.is_allowed(limiter_key):
+            return jsonify({"error": "Muitas tentativas. Tente novamente em instantes."}), 429
 
         try:
             row = users_repo.get_credentials_by_email(app.db_conn, email)
