@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MG Street - Loja</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="robots" content="noindex">
+</head>
+<body class="loja-page">
+    <header class="loja-header">
+        <div class="loja-header-inner">
+            <div>
+                <h1>Loja MG Street</h1>
+                <p class="subtitle">Escolha por categoria e monte seu carrinho</p>
+            </div>
+            <div class="loja-actions">
+                <button id="logout-btn" class="btn btn-ghost">Sair</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="loja-main">
+        <section class="loja-hero card">
+            <div>
+                <span class="section-kicker">Coleções</span>
+                <h2>Produtos prontos para uso diário</h2>
+                <p class="muted">Filtre por categoria, navegue pelos grupos e finalize quando quiser.</p>
+            </div>
+            <div class="filter-summary">
+                <strong id="product-count">0</strong>
+                <span>itens disponíveis</span>
+            </div>
+        </section>
+
+        <section class="category-filters card" aria-label="Filtro por categoria">
+            <div class="filters-header">
+                <h3>Categoria</h3>
+                <p class="muted">Selecione uma opção para agrupar os produtos.</p>
+            </div>
+            <div id="category-filters" class="filter-chips"></div>
+        </section>
+
+        <section id="catalog-sections" class="catalog-sections" aria-live="polite">
+            <!-- Seções serão inseridas via JS -->
+        </section>
+    </main>
+
+    <button id="cart-button" class="cart-button">Carrinho (<span id="cart-count">0</span>)</button>
+
+    <aside id="cart-panel" class="cart-panel" aria-hidden="true">
+        <header>
+            <h3>Seu Carrinho</h3>
+            <button id="close-cart" class="btn btn-ghost">Fechar</button>
+        </header>
+        <div id="cart-items" class="cart-items"></div>
+        <footer>
+            <div>Total: R$ <span id="cart-total">0.00</span></div>
+            <button id="checkout-btn" class="btn">Finalizar Compra</button>
+        </footer>
+    </aside>
+
+    <script>
+        const PREVIEW_TOKEN_KEY = 'mgstreet_preview_token';
+        const TOKEN_KEY = 'mgstreet_token';
+
+        (function checkAuthAndSetupButton() {
+            const previewToken = localStorage.getItem(PREVIEW_TOKEN_KEY);
+            const token = previewToken || localStorage.getItem(TOKEN_KEY);
+            const logoutBtn = document.getElementById('logout-btn');
+
+            if (!token) {
+                window.location.href = '/';
+                return;
+            }
+
+            if (previewToken) {
+                logoutBtn.textContent = 'Voltar';
+                logoutBtn.onclick = function () {
+                    localStorage.removeItem(PREVIEW_TOKEN_KEY);
+                    window.location.href = '/admin';
+                };
+            } else {
+                logoutBtn.textContent = 'Sair';
+                logoutBtn.onclick = function () {
+                    localStorage.removeItem(TOKEN_KEY);
+                    window.location.href = '/';
+                };
+            }
+        })();
+
+        const catalogSections = document.getElementById('catalog-sections');
+        const categoryFilters = document.getElementById('category-filters');
+        const productCount = document.getElementById('product-count');
+        let allProducts = [];
+        let activeCategory = 'todos';
+
+        function showToast(message) {
+            const existing = document.querySelector('.mg-toast');
+            if (existing) existing.remove();
+
+            const div = document.createElement('div');
+            div.className = 'mg-toast';
+            div.textContent = message;
+            document.body.appendChild(div);
+            setTimeout(() => div.classList.add('visible'), 10);
+            setTimeout(() => div.classList.remove('visible'), 2600);
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        function getToken() {
+            return localStorage.getItem(PREVIEW_TOKEN_KEY) || localStorage.getItem(TOKEN_KEY);
+        }
+
+        function normalizeCategory(category) {
+            return (category || 'sem-categoria').toString().trim().toLowerCase();
+        }
+
+        function getCategoryLabel(category) {
+            const labels = {
+                todos: 'Todos',
+                camisetas: 'Camisetas',
+                calcas: 'Calças',
+                meias: 'Meias',
+                'sem-categoria': 'Sem categoria',
+            };
+            return labels[category] || category.charAt(0).toUpperCase() + category.slice(1);
+        }
+
+        function buildCategoryFilters(products) {
+            const categories = Array.from(new Set(products.map((product) => normalizeCategory(product.category))))
+                .filter(Boolean)
+                .sort();
+
+            const options = ['todos', ...categories];
+            categoryFilters.innerHTML = '';
+
+            options.forEach((category) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = `filter-chip ${category === activeCategory ? 'active' : ''}`;
+                button.textContent = getCategoryLabel(category);
+                button.dataset.category = category;
+                button.addEventListener('click', function () {
+                    activeCategory = category;
+                    buildCategoryFilters(allProducts);
+                    renderCatalog();
+                });
+                categoryFilters.appendChild(button);
+            });
+        }
+
+        function createProductCard(product) {
+            const card = document.createElement('article');
+            card.className = 'product-card';
+            card.innerHTML = `
+                <div class="product-img">
+                    <img src="${product.image_url || ''}" alt="${product.name}"/>
+                </div>
+                <div class="product-body">
+                    <span class="product-tag">${getCategoryLabel(normalizeCategory(product.category))}</span>
+                    <h4>${product.name}</h4>
+                    <p class="muted">${product.description || ''}</p>
+                    <div class="product-footer">
+                        <strong>R$ ${product.price != null ? Number(product.price).toFixed(2) : '0.00'}</strong>
+                        <button class="btn buy-btn" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">Comprar</button>
+                    </div>
+                </div>
+            `;
+            return card;
+        }
+
+        function renderCatalog() {
+            const productsToRender = activeCategory === 'todos'
+                ? allProducts
+                : allProducts.filter((product) => normalizeCategory(product.category) === activeCategory);
+
+            productCount.textContent = productsToRender.length;
+            catalogSections.innerHTML = '';
+
+            if (productsToRender.length === 0) {
+                const empty = document.createElement('section');
+                empty.className = 'catalog-empty card';
+                empty.innerHTML = '<h3>Nenhum produto encontrado.</h3><p class="muted">Tente outra categoria.</p>';
+                catalogSections.appendChild(empty);
+                return;
+            }
+
+            const groupedProducts = {};
+            productsToRender.forEach((product) => {
+                const category = normalizeCategory(product.category);
+                if (!groupedProducts[category]) {
+                    groupedProducts[category] = [];
+                }
+                groupedProducts[category].push(product);
+            });
+
+            Object.keys(groupedProducts)
+                .sort()
+                .forEach((category) => {
+                    const section = document.createElement('section');
+                    section.className = 'catalog-group card';
+                    section.innerHTML = `
+                        <div class="catalog-group-header">
+                            <div>
+                                <span class="section-kicker">${getCategoryLabel(category)}</span>
+                                <h3>${getCategoryLabel(category)}</h3>
+                            </div>
+                            <span class="group-count">${groupedProducts[category].length} produto(s)</span>
+                        </div>
+                    `;
+
+                    const grid = document.createElement('div');
+                    grid.className = 'products-grid';
+
+                    groupedProducts[category].forEach((product) => {
+                        grid.appendChild(createProductCard(product));
+                    });
+
+                    section.appendChild(grid);
+                    catalogSections.appendChild(section);
+                });
+        }
+
+        async function loadProducts() {
+            const token = getToken();
+            try {
+                const resp = await fetch('/api/products', {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                if (!resp.ok) {
+                    showToast('Não foi possível carregar os produtos.');
+                    return;
+                }
+
+                const data = await resp.json();
+                allProducts = data.products || [];
+                productCount.textContent = allProducts.length;
+                buildCategoryFilters(allProducts);
+                renderCatalog();
+            } catch (err) {
+                console.error('Erro ao carregar produtos', err);
+                showToast('Erro ao carregar produtos.');
+            }
+        }
+
+        document.addEventListener('click', function (e) {
+            const btn = e.target.closest('button.buy-btn');
+            if (!btn) return;
+
+            const id = btn.getAttribute('data-id');
+            const name = btn.getAttribute('data-name');
+            const price = parseFloat(btn.getAttribute('data-price')) || 0;
+            const cart = JSON.parse(sessionStorage.getItem('mg_cart') || '[]');
+            const item = { id, name: name, price: price, quantity: 1 };
+
+            cart.push(item);
+            sessionStorage.setItem('mg_cart', JSON.stringify(cart));
+            showToast('Item adicionado ao carrinho');
+            updateCartUI();
+        });
+
+        const cartButton = document.getElementById('cart-button');
+        const cartCount = document.getElementById('cart-count');
+        const cartPanel = document.getElementById('cart-panel');
+        const cartItemsEl = document.getElementById('cart-items');
+        const cartTotalEl = document.getElementById('cart-total');
+        const closeCart = document.getElementById('close-cart');
+
+        function updateCartUI() {
+            const cart = JSON.parse(sessionStorage.getItem('mg_cart') || '[]');
+            cartCount.textContent = cart.length;
+            cartItemsEl.innerHTML = '';
+            let total = 0;
+
+            cart.forEach((item) => {
+                const row = document.createElement('div');
+                row.className = 'cart-item';
+                row.innerHTML = `
+                    <div>
+                        <strong>${item.name}</strong>
+                        <div class="muted">Qtd. ${item.quantity || 1}</div>
+                    </div>
+                    <div>R$ ${item.price != null ? Number(item.price).toFixed(2) : '0.00'}</div>
+                `;
+                cartItemsEl.appendChild(row);
+                total += parseFloat(item.price || 0) * parseInt(item.quantity || 1, 10);
+            });
+
+            cartTotalEl.textContent = total.toFixed(2);
+        }
+
+        cartButton.addEventListener('click', function () {
+            cartPanel.setAttribute('aria-hidden', 'false');
+            updateCartUI();
+        });
+
+        closeCart.addEventListener('click', function () {
+            cartPanel.setAttribute('aria-hidden', 'true');
+        });
+
+        document.getElementById('checkout-btn').addEventListener('click', async function () {
+            const cart = JSON.parse(sessionStorage.getItem('mg_cart') || '[]');
+            if (!cart || cart.length === 0) {
+                alert('Carrinho vazio.');
+                return;
+            }
+
+            alert('Verificação de envio em andamento');
+
+            const token = localStorage.getItem(TOKEN_KEY);
+            try {
+                const resp = await fetch('/api/checkout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ items: cart }),
+                });
+
+                if (!resp.ok) {
+                    const err = await resp.json().catch(() => ({}));
+                    alert(err.error || 'Falha no checkout');
+                    return;
+                }
+
+                const data = await resp.json();
+                alert('Pedido enviado com sucesso. ID: ' + (data.order_id || 'N/A'));
+                sessionStorage.removeItem('mg_cart');
+                updateCartUI();
+                cartPanel.setAttribute('aria-hidden', 'true');
+            } catch (err) {
+                alert('Erro de rede ao enviar pedido.');
+            }
+        });
+
+        loadProducts();
+        updateCartUI();
+    </script>
+</body>
+</html>

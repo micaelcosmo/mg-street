@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MG Street - Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="robots" content="noindex">
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-brand">
+                <img src="{{ url_for('static', filename='logo/logo.jpg') }}" alt="MG Street Logo">
+                <h1>MG Street</h1>
+            </div>
+            <form id="login-form">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="seu@email.com" required>
+
+                <label for="password">Senha</label>
+                <input type="password" id="password" name="password" placeholder="Sua senha" required>
+
+                <button type="submit">Entrar</button>
+            </form>
+            <div class="carousel">
+                <div class="carousel-track">
+                    <div class="carousel-slide">Promoção 1 - Frete grátis</div>
+                    <div class="carousel-slide">Promoção 2 - 10% OFF</div>
+                    <div class="carousel-slide">Promoção 3 - Novidades na loja</div>
+                </div>
+                <div class="carousel-dots" aria-hidden="true"></div>
+            </div>
+
+            <div class="social-section">
+                <p>Ou entre com</p>
+                <div class="social-buttons">
+                    <button type="button" class="social-btn google">Google</button>
+                    <button type="button" class="social-btn facebook">Facebook</button>
+                    <button type="button" class="social-btn instagram">Instagram</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function parseJwt(token) {
+            try {
+                const parts = token.split('.');
+                if (parts.length !== 3) return null;
+                const payload = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+                const decoded = decodeURIComponent(atob(payload).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                return JSON.parse(decoded);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        document.getElementById('login-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const resp = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, password: password })
+                });
+
+                const data = await resp.json();
+                if (!resp.ok) {
+                    alert(data.error || 'Falha na autenticação.');
+                    return;
+                }
+
+                const token = data.token;
+                localStorage.setItem('mgstreet_token', token);
+
+                const payload = parseJwt(token) || {};
+                const role = payload.role || 'user';
+                if (role === 'admin') {
+                    window.location.href = '/admin';
+                } else {
+                    window.location.href = '/shop';
+                }
+            } catch (err) {
+                alert('Erro de rede ao tentar autenticar.');
+            }
+        });
+
+        // Social buttons: mostrar toast "Integração em breve!"
+        function showToast(message) {
+            const existing = document.querySelector('.mg-toast');
+            if (existing) existing.remove();
+            const div = document.createElement('div');
+            div.className = 'mg-toast';
+            div.textContent = message;
+            document.body.appendChild(div);
+            setTimeout(() => div.classList.add('visible'), 10);
+            setTimeout(() => div.classList.remove('visible'), 2600);
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        document.querySelectorAll('.social-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                showToast('Integração em breve!');
+            });
+        });
+
+        // Carrossel: automático e manual (TASK 19)
+        (function initCarousel() {
+            const track = document.querySelector('.carousel-track');
+            const slides = Array.from(document.querySelectorAll('.carousel-slide'));
+            const dotsContainer = document.querySelector('.carousel-dots');
+            if (!track || slides.length === 0 || !dotsContainer) return;
+
+            let current = 0;
+            let timer = null;
+
+            function createDots() {
+                slides.forEach((_, idx) => {
+                    const btn = document.createElement('button');
+                    if (idx === 0) btn.classList.add('active');
+                    btn.addEventListener('click', () => goTo(idx));
+                    dotsContainer.appendChild(btn);
+                });
+            }
+
+            function update() {
+                track.style.transform = `translateX(-${current * 100}%)`;
+                const dots = Array.from(dotsContainer.children);
+                dots.forEach((d, i) => d.classList.toggle('active', i === current));
+            }
+
+            function next() {
+                current = (current + 1) % slides.length;
+                update();
+            }
+
+            function goTo(idx) {
+                current = idx % slides.length;
+                update();
+                restartTimer();
+            }
+
+            function restartTimer() {
+                if (timer) clearInterval(timer);
+                timer = setInterval(next, 3500);
+            }
+
+            createDots();
+            update();
+            restartTimer();
+        })();
+    </script>
+</body>
+</html>

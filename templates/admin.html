@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MG Street - Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="robots" content="noindex">
+    <style> body { padding-top: 64px; } </style>
+</head>
+<body class="admin-page">
+    <header class="admin-header">
+        <div class="admin-header-inner">
+            <div class="brand">
+                <h1>Dashboard Admin</h1>
+                <p class="subtitle">Gerencie produtos e pedidos</p>
+            </div>
+            <div class="admin-actions">
+                <button id="new-product-btn" class="btn">Novo Produto</button>
+                <button id="logout-btn" class="btn btn-ghost">Sair</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="admin-main">
+        <section class="sales-dashboard card" style="margin-bottom:14px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+                <div>
+                    <h3 style="margin:0 0 6px 0;">Visão de Vendas</h3>
+                    <div style="color:var(--muted);">Resumo rápido das vendas</div>
+                </div>
+                <div style="display:flex;gap:12px;align-items:center;">
+                    <div style="text-align:right">
+                        <div style="font-weight:700;font-size:1.1rem" id="stat-total-revenue">R$ 0.00</div>
+                        <div style="color:var(--muted);font-size:0.9rem">Total de receita</div>
+                    </div>
+                    <div style="text-align:right">
+                        <div style="font-weight:700;font-size:1.1rem" id="stat-total-orders">0</div>
+                        <div style="color:var(--muted);font-size:0.9rem">Pedidos</div>
+                    </div>
+                    <button id="refresh-orders" class="btn btn-ghost">Atualizar</button>
+                </div>
+            </div>
+            <div style="margin-top:12px;">
+                <table class="products-table" id="orders-table">
+                    <thead>
+                        <tr><th>ID</th><th>Usuário</th><th>Itens</th><th>Total</th><th>Criado em</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+        <section class="products-table-wrap card">
+            <div class="table-toolbar">
+                <div class="search-wrap">
+                    <input id="search-products" placeholder="Pesquisar por nome..." />
+                </div>
+                <div class="table-actions">Total de produtos: <span id="products-count">0</span></div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="products-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Descrição</th>
+                            <th>Preço</th>
+                            <th>Imagem</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Linhas serão populadas via JavaScript -->
+                    </tbody>
+                </table>
+                <div class="empty-state" id="empty-state">Nenhum produto encontrado. Clique em "Novo Produto" para adicionar.</div>
+            </div>
+            <div class="user-preview card" style="margin-top:12px;">
+                <strong>Preview de Usuário</strong>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:12px;">
+                    <div>
+                        <div id="preview-user-name">Cliente Demo</div>
+                        <div id="preview-user-email" style="color:var(--muted);font-size:0.9rem;">cliente@mgstreet.com</div>
+                    </div>
+                    <div style="display:flex;gap:8px;">
+                        <button id="preview-open-loja" class="btn">Preview na Loja</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal de Novo Produto -->
+    <div id="product-modal" class="modal" aria-hidden="true">
+        <div class="modal-content">
+            <h3>Novo Produto</h3>
+            <form id="product-form">
+                <label>Nome</label>
+                <input type="text" name="name" required />
+                <label>Descrição</label>
+                <input type="text" name="description" />
+                <label>Preço</label>
+                <input type="number" name="price" step="0.01" required />
+                <label>Imagem URL</label>
+                <input type="text" name="image_url" />
+                <label>Categoria</label>
+                <input type="text" name="category" placeholder="ex: camisetas" />
+                <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end;">
+                    <button type="button" id="cancel-product" class="btn btn-ghost">Cancelar</button>
+                    <button type="submit" class="btn">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Check auth
+        (function checkAuth() {
+            const token = localStorage.getItem('mgstreet_token');
+            if (!token) { window.location.href = '/'; }
+        })();
+
+        document.getElementById('logout-btn').addEventListener('click', function () {
+            localStorage.removeItem('mgstreet_token');
+            window.location.href = '/';
+        });
+
+        const tbody = document.querySelector('.products-table tbody');
+        const emptyState = document.getElementById('empty-state');
+        const productsCount = document.getElementById('products-count');
+
+        async function fetchAndRenderProducts() {
+            const token = localStorage.getItem('mgstreet_token');
+            tbody.innerHTML = '';
+            emptyState.style.display = 'none';
+            try {
+                const resp = await fetch('/api/products', { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!resp.ok) { throw new Error('Falha ao buscar produtos'); }
+                const data = await resp.json();
+                const products = data.products || [];
+                productsCount.textContent = products.length;
+                if (products.length === 0) {
+                    emptyState.style.display = 'block';
+                    return;
+                }
+                products.forEach(product => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${product.id}</td>
+                        <td>${product.name}</td>
+                        <td>${product.description || ''}</td>
+                        <td>R$ ${product.price != null ? Number(product.price).toFixed(2) : ''}</td>
+                        <td>${product.image_url ? `<img src="${product.image_url}" alt="" class="tbl-img"/>` : ''}</td>
+                        <td><button class="btn btn-danger" data-id="${product.id}">Deletar</button></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                console.error(err);
+                emptyState.textContent = 'Erro ao carregar produtos.';
+                emptyState.style.display = 'block';
+            }
+        }
+
+        // Modal logic
+        const modal = document.getElementById('product-modal');
+        const productForm = document.getElementById('product-form');
+        const cancelBtn = document.getElementById('cancel-product');
+        function openModal() { modal.setAttribute('aria-hidden', 'false'); }
+        function closeModal() { modal.setAttribute('aria-hidden', 'true'); productForm.reset(); }
+        document.getElementById('new-product-btn').addEventListener('click', openModal);
+        cancelBtn.addEventListener('click', closeModal);
+
+        productForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const form = new FormData(productForm);
+            const payload = { name: form.get('name'), description: form.get('description'), price: parseFloat(form.get('price')), image_url: form.get('image_url'), category: form.get('category') };
+            const token = localStorage.getItem('mgstreet_token');
+            try {
+                const resp = await fetch('/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(payload) });
+                if (!resp.ok) { const err = await resp.json().catch(()=>({})); alert(err.error || 'Falha ao criar produto.'); return; }
+                closeModal(); fetchAndRenderProducts();
+            } catch (err) { alert('Erro de rede ao criar produto.'); }
+        });
+
+        // Delete delegation
+        tbody.addEventListener('click', async function (e) {
+            const btn = e.target.closest('button'); if (!btn) return; if (!btn.classList.contains('btn-danger')) return;
+            const id = btn.getAttribute('data-id'); if (!id) return; if (!confirm('Confirmar remoção do produto?')) return;
+            const token = localStorage.getItem('mgstreet_token');
+            try {
+                const resp = await fetch(`/api/products/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+                if (!resp.ok) { const err = await resp.json().catch(()=>({})); alert(err.error || 'Falha ao deletar produto.'); return; }
+                fetchAndRenderProducts();
+            } catch (err) { alert('Erro de rede ao deletar produto.'); }
+        });
+
+        // Simple search
+        document.getElementById('search-products').addEventListener('input', function (e) {
+            const q = e.target.value.toLowerCase();
+            Array.from(tbody.querySelectorAll('tr')).forEach(tr => {
+                const name = tr.children[1]?.textContent.toLowerCase() || '';
+                tr.style.display = name.includes(q) ? '' : 'none';
+            });
+        });
+
+        // Initial load
+        fetchAndRenderProducts();
+
+        // Preview como usuário comprador
+        document.getElementById('preview-open-loja').addEventListener('click', async function () {
+            const token = localStorage.getItem('mgstreet_token');
+            if (!token) { alert('Você precisa estar logado como admin para gerar o preview.'); return; }
+            try {
+                const resp = await fetch('/api/preview_token', { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!resp.ok) { const err = await resp.json().catch(()=>({})); alert(err.error || 'Falha ao gerar preview.'); return; }
+                const data = await resp.json();
+                // set demo preview token (separate) and open loja in new tab
+                localStorage.setItem('mgstreet_preview_token', data.token);
+                window.open('/shop', '_blank');
+            } catch (err) {
+                alert('Erro ao solicitar token de preview.');
+            }
+        });
+
+        // Orders and stats for sales dashboard
+        async function fetchOrdersAndStats() {
+            const token = localStorage.getItem('mgstreet_token');
+            try {
+                const statsResp = await fetch('/api/orders/stats', { headers: { 'Authorization': `Bearer ${token}` } });
+                if (statsResp.ok) {
+                    const stats = await statsResp.json();
+                    document.getElementById('stat-total-revenue').textContent = 'R$ ' + (Number(stats.total_revenue || 0).toFixed(2));
+                    document.getElementById('stat-total-orders').textContent = (stats.total_orders || 0);
+                }
+                const resp = await fetch('/api/orders', { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!resp.ok) { throw new Error('Falha ao buscar pedidos'); }
+                const data = await resp.json();
+                const ordersTbody = document.querySelector('#orders-table tbody');
+                ordersTbody.innerHTML = '';
+                (data.orders || []).forEach(order => {
+                    const tr = document.createElement('tr');
+                    const itemsText = (order.items || []).map(item => `${item.name} x${item.quantity || 1}`).join(', ');
+                    tr.innerHTML = `<td>${order.id}</td><td>${order.user_id}</td><td>${itemsText}</td><td>R$ ${Number(order.total).toFixed(2)}</td><td>${order.created_at || ''}</td>`;
+                    ordersTbody.appendChild(tr);
+                });
+            } catch (err) {
+                console.error('Erro ao carregar pedidos/estatísticas', err);
+            }
+        }
+
+        document.getElementById('refresh-orders').addEventListener('click', fetchOrdersAndStats);
+        // initial load for dashboard
+        fetchOrdersAndStats();
+    </script>
+</body>
+</html>
