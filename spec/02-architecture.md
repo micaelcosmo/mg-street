@@ -110,7 +110,7 @@ momento da compra (preservam o histórico mesmo se o produto mudar/for removido)
 |--------|------|------|---------|-----------------|
 | GET | `/ping` | — | — | `{status, message}` |
 | POST | `/api/register` | — | `{name,email,password}` | 201 `{message}` |
-| POST | `/api/login` | — | `{email,password}` | 200 `{token}` |
+| POST | `/api/login` | — | `{email,password}` | 200 `{token,role}` |
 | GET | `/api/products` | token | — | 200 `{products:[...]}` |
 | POST | `/api/products` | admin | `{name,description,price,image_url,category}` | 201 `{message,id}` |
 | DELETE | `/api/products/<id>` | admin | — | 200 `{message}` |
@@ -133,7 +133,6 @@ Notas do contrato (o nome das chaves JSON é estável; o schema interno é norma
 
 (rastreadas como tarefas em `04-tasks.md`)
 
-- **Decode de JWT manual** (`parseJwt`) no frontend é frágil.
 - **Carrinho em `sessionStorage`** — não persiste entre abas/refresh, não sincroniza com servidor.
 ### Decisão: transações e `autocommit`
 

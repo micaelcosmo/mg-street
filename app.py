@@ -341,7 +341,7 @@ def create_app():
                 app.config["JWT_SECRET"],
                 algorithm="HS256",
             )
-            return jsonify({"token": token}), 200
+            return jsonify({"token": token, "role": role}), 200
         except Exception as exc:
             app.logger.error("Falha no login: %s", exc)
             return jsonify({"error": "Falha ao autenticar."}), 500

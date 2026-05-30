@@ -17,6 +17,7 @@ def test_login_success_returns_token_with_exp(client, application, set_cursor):
     assert resp.status_code == 200
     data = resp.get_json()
     assert "token" in data
+    assert data["role"] == "admin"  # role explicito na resposta (frontend nao parseia JWT)
     payload = jwt.decode(
         data["token"], application.config["JWT_SECRET"], algorithms=["HS256"]
     )
