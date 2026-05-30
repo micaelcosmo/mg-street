@@ -118,7 +118,7 @@
         // Check auth
         (function checkAuth() {
             const token = localStorage.getItem('mgstreet_token');
-            if (!token) { window.location.href = '/'; }
+            if (!token) { window.location.href = '/login'; }
         })();
 
         document.getElementById('logout-btn').addEventListener('click', function () {

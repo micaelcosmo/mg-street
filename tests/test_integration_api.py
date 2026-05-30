@@ -71,3 +71,21 @@ def test_checkout_creates_order(client, application, set_cursor):
     )
     assert resp.status_code == 201
     assert resp.get_json()["order_id"] == 10
+
+
+def test_landing_page_is_public(client):
+    # A vitrine inicial abre sem login.
+    assert client.get("/").status_code == 200
+
+
+def test_login_page_served(client):
+    assert client.get("/login").status_code == 200
+
+
+def test_public_products_no_auth(client, set_cursor):
+    set_cursor(fetchall=[(1, "Camiseta", "algodao", 49.9, "", "camisetas")])
+    resp = client.get("/api/public/products")
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert len(data["products"]) == 1
+    assert data["products"][0]["name"] == "Camiseta"

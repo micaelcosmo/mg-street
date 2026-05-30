@@ -118,7 +118,9 @@ momento da compra (preservam o histórico mesmo se o produto mudar/for removido)
 | GET | `/api/orders/stats` | admin | — | 200 `{total_orders,total_revenue}` |
 | POST | `/api/checkout` | token | `{items:[{id,name,price,quantity}]}` | 201 `{message,order_id}` |
 | GET | `/api/preview_token` | admin | — | 200 `{token,user}` |
-| GET | `/`, `/admin`, `/shop` | — | — | HTML (render_template) |
+| GET | `/api/public/products` | — | — | 200 `{products:[...]}` (vitrine pública) |
+| GET | `/` | — | — | HTML landing pública (vitrine antes do login) |
+| GET | `/login`, `/admin`, `/shop` | — | — | HTML (render_template) |
 | GET | `/tests/report` | dev | — | HTML (roda a suíte e mostra o resultado) |
 
 Notas do contrato (o nome das chaves JSON é estável; o schema interno é normalizado):

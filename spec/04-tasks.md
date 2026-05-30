@@ -72,7 +72,8 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
 - [x] **Modal de novo produto responsivo** (`max-height: 100vh` + scroll; não corta).
 - [ ] **Variações de produto** (cor/tamanho/etc.) — o admin define na criação; a loja só
       mostra o seletor quando o produto tiver opções.
-- [ ] **Landing pública** antes do login (vitrine inicial da loja sem autenticação).
+- [x] **Landing pública** antes do login: `/` = vitrine (`landing.html` + `GET /api/public/products`);
+      login movido para `/login`; redirects de "não logado" apontam para `/login`.
 
 ### Fase A — Completar o fluxo (UX essencial)
 - [ ] Editar produto: `PUT /api/products/<id>` + UI no admin (fecha o CRUD).

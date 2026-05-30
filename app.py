@@ -45,6 +45,21 @@ def calculate_cart_total(items):
     return total
 
 
+def serialize_products(rows):
+    """Converte linhas de produto (id, name, description, price, image_url, category)."""
+    return [
+        {
+            "id": row[0],
+            "name": row[1],
+            "description": row[2],
+            "price": float(row[3]) if row[3] is not None else None,
+            "image_url": row[4],
+            "category": row[5],
+        }
+        for row in rows
+    ]
+
+
 def token_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -364,6 +379,10 @@ def create_app():
             return jsonify({"error": "Falha ao autenticar."}), 500
 
     @app.route("/")
+    def landing_page():
+        return render_template("landing.html")
+
+    @app.route("/login")
     def login_page():
         return render_template("login.html")
 
@@ -374,6 +393,16 @@ def create_app():
     @app.route("/shop")
     def shop_page():
         return render_template("shop.html")
+
+    @app.route("/api/public/products", methods=["GET"])
+    def public_products():
+        # Catálogo público para a landing (sem autenticação).
+        try:
+            rows = products_repo.list_all(app.db_conn)
+            return jsonify({"products": serialize_products(rows)}), 200
+        except Exception as exc:
+            app.logger.error("Erro ao listar produtos (público): %s", exc)
+            return jsonify({"error": "Falha ao listar produtos."}), 500
 
     @app.route('/api/products', methods=['POST'])
     @admin_required
@@ -401,18 +430,7 @@ def create_app():
     def list_products(payload):
         try:
             rows = products_repo.list_all(app.db_conn)
-            result = [
-                {
-                    'id': row[0],
-                    'name': row[1],
-                    'description': row[2],
-                    'price': float(row[3]) if row[3] is not None else None,
-                    'image_url': row[4],
-                    'category': row[5]
-                }
-                for row in rows
-            ]
-            return jsonify({'products': result}), 200
+            return jsonify({'products': serialize_products(rows)}), 200
         except Exception as exc:
             app.logger.error('Erro ao listar produtos: %s', exc)
             return jsonify({'error': 'Falha ao listar produtos.'}), 500
