@@ -1,11 +1,11 @@
 {
   "feito": [
-    "Fase A completa + estoque + rate limits",
-    "Busca/paginação + perfil prod (gunicorn)",
-    "Logs estruturados + a11y (1ª passada)",
-    "Dark mode + landing + variações"
+    "Fase A completa",
+    "Estoque + rate limits + busca/paginação",
+    "Produção (gunicorn) + logs + a11y",
+    "Upload local de imagens"
   ],
-  "fazendo": "Fase B (grátis) — upload local de imagens de produto",
+  "fazendo": "Tagueando milestones (0.4.0 Fase A, 0.5.0 lote loja-real)",
   "proximo": "Persistir carrinho no servidor (grátis). Pagamento/e-mail: pulados ($)",
   "custo": {
     "faixa": "Estimativa manual: médio",

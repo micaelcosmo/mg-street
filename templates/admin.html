@@ -106,6 +106,8 @@
                 <input type="number" name="stock" min="0" step="1" value="10" />
                 <label>Imagem URL</label>
                 <input type="text" name="image_url" />
+                <label>…ou envie um arquivo</label>
+                <input type="file" id="image-file" accept="image/*" />
                 <label>Categoria</label>
                 <input type="text" name="category" placeholder="ex: camisetas" />
                 <label>Opções (uma por linha — ex.: Cor: Preto, Roxo)</label>
@@ -215,6 +217,24 @@
 
         document.getElementById('new-product-btn').addEventListener('click', openModalForNew);
         cancelBtn.addEventListener('click', closeModal);
+
+        // Upload de imagem: envia o arquivo e preenche o campo "Imagem URL".
+        document.getElementById('image-file').addEventListener('change', async function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const fd = new FormData();
+            fd.append('file', file);
+            const token = localStorage.getItem('mgstreet_token');
+            try {
+                const resp = await fetch('/api/upload', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: fd });
+                const data = await resp.json();
+                if (!resp.ok) { alert(data.error || 'Falha no upload.'); return; }
+                productForm.image_url.value = data.url;
+                alert('Imagem enviada!');
+            } catch (err) {
+                alert('Erro de rede no upload.');
+            }
+        });
 
         // Converte "Cor: Preto, Roxo" (uma por linha) em { Cor: ["Preto","Roxo"] }.
         function parseOptions(text) {

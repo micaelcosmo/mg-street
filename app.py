@@ -5,9 +5,11 @@ import time
 import hashlib
 import hmac
 import datetime
+import uuid
 import jwt
 import psycopg2
 from functools import wraps
+from werkzeug.utils import secure_filename
 
 import qa_report
 from logging_setup import configure_logging
@@ -22,6 +24,10 @@ from repositories import (
 
 
 load_dotenv()
+
+
+UPLOAD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "uploads")
+ALLOWED_IMAGE_EXT = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
 
 
 def hash_password(password):
@@ -325,6 +331,7 @@ def create_app():
     app.config["POSTGRES_HOST"] = os.getenv("POSTGRES_HOST", "db")
     app.config["JWT_SECRET"] = os.getenv("JWT_SECRET", "mgstreet_jwt_secret")
     app.config["JWT_EXP_HOURS"] = int(os.getenv("JWT_EXP_HOURS", 12))
+    app.config["MAX_CONTENT_LENGTH"] = int(os.getenv("MAX_UPLOAD_BYTES", 5 * 1024 * 1024))
 
     configure_logging(app)
 
@@ -478,6 +485,24 @@ def create_app():
         except Exception as exc:
             app.logger.error('Erro ao criar produto: %s', exc)
             return jsonify({'error': 'Falha ao criar produto.'}), 500
+
+    @app.route('/api/upload', methods=['POST'])
+    @admin_required
+    def upload_image(payload):
+        uploaded = request.files.get('file')
+        if not uploaded or not uploaded.filename:
+            return jsonify({'error': 'Nenhum arquivo enviado.'}), 400
+        ext = os.path.splitext(uploaded.filename)[1].lower()
+        if ext not in ALLOWED_IMAGE_EXT:
+            return jsonify({'error': 'Formato não suportado (jpg, png, webp, gif).'}), 400
+        try:
+            os.makedirs(UPLOAD_DIR, exist_ok=True)
+            filename = uuid.uuid4().hex[:8] + "_" + secure_filename(uploaded.filename)
+            uploaded.save(os.path.join(UPLOAD_DIR, filename))
+            return jsonify({'url': f'/static/uploads/{filename}'}), 201
+        except Exception as exc:
+            app.logger.error('Falha no upload de imagem: %s', exc)
+            return jsonify({'error': 'Falha ao salvar a imagem.'}), 500
 
     @app.route('/api/products', methods=['GET'])
     @token_required

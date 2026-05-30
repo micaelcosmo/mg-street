@@ -142,6 +142,30 @@ def test_checkout_rate_limited(client, application, set_cursor):
     assert client.post("/api/checkout", json=body, headers=headers).status_code == 429
 
 
+def test_upload_requires_admin(client, application):
+    token = jwt.encode({"id": 1, "role": "user"}, application.config["JWT_SECRET"], algorithm="HS256")
+    resp = client.post("/api/upload", headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 403
+
+
+def test_upload_without_file_is_rejected(client, application):
+    token = jwt.encode({"id": 1, "role": "admin"}, application.config["JWT_SECRET"], algorithm="HS256")
+    resp = client.post("/api/upload", headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 400
+
+
+def test_upload_bad_extension_is_rejected(client, application):
+    import io
+    token = jwt.encode({"id": 1, "role": "admin"}, application.config["JWT_SECRET"], algorithm="HS256")
+    resp = client.post(
+        "/api/upload",
+        headers={"Authorization": f"Bearer {token}"},
+        data={"file": (io.BytesIO(b"x"), "evil.txt")},
+        content_type="multipart/form-data",
+    )
+    assert resp.status_code == 400
+
+
 def test_my_orders_requires_token(client):
     assert client.get("/api/orders/me").status_code == 401
 
