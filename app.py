@@ -393,6 +393,10 @@ def create_app():
     def login_page():
         return render_template("login.html")
 
+    @app.route("/register")
+    def register_page():
+        return render_template("register.html")
+
     @app.route("/admin")
     def admin_page():
         return render_template("admin.html")

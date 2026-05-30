@@ -342,6 +342,18 @@ form {
     width: 100%;
 }
 
+.auth-alt {
+    text-align: center;
+    margin-top: 14px;
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+.auth-alt a {
+    color: var(--brand-purple);
+    font-weight: bold;
+}
+
 body,
 .admin-main,
 .admin-header-inner {

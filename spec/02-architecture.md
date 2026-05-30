@@ -123,7 +123,7 @@ momento da compra (preservam o histórico mesmo se o produto mudar/for removido)
 | GET | `/api/preview_token` | admin | — | 200 `{token,user}` |
 | GET | `/api/public/products` | — | — | 200 `{products:[...]}` (vitrine pública) |
 | GET | `/` | — | — | HTML landing pública (vitrine antes do login) |
-| GET | `/login`, `/admin`, `/shop` | — | — | HTML (render_template) |
+| GET | `/login`, `/register`, `/admin`, `/shop` | — | — | HTML (render_template) |
 | GET | `/tests/report` | dev | — | HTML (roda a suíte e mostra o resultado) |
 
 Notas do contrato (o nome das chaves JSON é estável; o schema interno é normalizado):

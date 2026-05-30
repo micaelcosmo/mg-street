@@ -79,7 +79,8 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
 ### Fase A — Completar o fluxo (UX essencial)
 - [x] Editar produto: `PUT /api/products/<id>` + botão "Editar" no admin (modal prefill,
       inclui opções). Fecha o CRUD.
-- [ ] Tela de cadastro de cliente: UI + link no login usando `/api/register`.
+- [x] Tela de cadastro de cliente: página `/register` + link no login (e vice-versa),
+      usando `POST /api/register`.
 - [ ] Carrinho com quantidade: +/-, agrupar item repetido, remover item.
 - [ ] Validação de entrada amigável (email/preço/campos) com mensagens claras.
 - [ ] "Meus pedidos" do cliente: `GET /api/orders/me` + página/seção.

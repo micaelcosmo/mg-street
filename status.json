@@ -2,11 +2,10 @@
   "feito": [
     "Dados do Docker movidos para D: (C: liberou ~8GB)",
     "Dark mode (preto + roxo)",
-    "Modal de novo produto responsivo",
-    "Landing pública antes do login",
-    "Variações de produto (cor/tamanho) ponta a ponta",
-    "Editar produto — CRUD completo (PUT + UI)"
+    "Landing pública + variações de produto",
+    "Editar produto — CRUD completo",
+    "Cadastro de cliente (UI + link no login)"
   ],
-  "fazendo": "Fase A — tela de cadastro de cliente (UI + link no login)",
-  "proximo": "Quantidade no carrinho (+/-, agrupar, remover); validação amigável"
+  "fazendo": "Fase A — quantidade no carrinho (+/-, agrupar item repetido, remover)",
+  "proximo": "Validação de entrada amigável; 'Meus pedidos' do cliente"
 }

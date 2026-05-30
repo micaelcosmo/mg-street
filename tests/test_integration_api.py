@@ -89,3 +89,21 @@ def test_public_products_no_auth(client, set_cursor):
     data = resp.get_json()
     assert len(data["products"]) == 1
     assert data["products"][0]["name"] == "Camiseta"
+
+
+def test_register_page_served(client):
+    assert client.get("/register").status_code == 200
+
+
+def test_register_creates_user(client, set_cursor):
+    set_cursor()  # create() só executa INSERT + commit, sem fetch
+    resp = client.post(
+        "/api/register",
+        json={"name": "Novo", "email": "novo@x.com", "password": "segredo"},
+    )
+    assert resp.status_code == 201
+
+
+def test_register_incomplete_is_rejected(client):
+    resp = client.post("/api/register", json={"email": "x@y.com"})
+    assert resp.status_code == 400
