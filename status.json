@@ -1,14 +1,10 @@
 {
   "feito": [
-    "Fase A completa",
-    "Estoque + rate limits + busca/paginação",
-    "Produção (gunicorn) + logs + a11y",
-    "Upload de imagens + carrinho persistente"
+    "Fase A completa + estoque + rate limits",
+    "Busca/paginação + produção (gunicorn)",
+    "Logs + a11y + upload de imagens",
+    "Carrinho persistente no servidor"
   ],
-  "fazendo": "Backlog GRÁTIS concluído — milestone 0.6.0",
-  "proximo": "Restam só itens com custo/ops: pagamento, e-mail, HTTPS/segredos, CI (escopo do token)",
-  "custo": {
-    "faixa": "Estimativa manual: médio",
-    "nota": "O app não acessa o faturamento real da Claude — valor exato no painel de billing da Anthropic. Este box é atualizado à mão."
-  }
+  "fazendo": "Pagamento via Mercado Pago (Checkout Pro, sandbox)",
+  "proximo": "Validar no sandbox com Pix/cartão de teste; webhook em produção"
 }
