@@ -302,7 +302,9 @@ def create_app():
             return jsonify({"error": "Relatório disponível apenas em desenvolvimento."}), 403
         try:
             summary, cases, raw_tail = qa_report.run_pytest()
-            generated_at = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            # Container roda em UTC; mostra o horário local (BRT/UTC-3 por padrão).
+            tz = datetime.timezone(datetime.timedelta(hours=int(os.getenv("REPORT_TZ_OFFSET", -3))))
+            generated_at = datetime.datetime.now(tz).strftime("%d/%m/%Y %H:%M:%S")
             page = qa_report.render_html(summary, cases, raw_tail, generated_at)
             return page, 200, {"Content-Type": "text/html; charset=utf-8"}
         except Exception as exc:
