@@ -5,11 +5,22 @@ subprocesso, lê o resultado via JUnit XML e renderiza uma página HTML dividida
 nível (alto: aceitação/integração; baixo: unitário).
 """
 import html
+import json
 import os
 import subprocess
 import sys
 import tempfile
 import xml.etree.ElementTree as ET
+
+
+def load_status():
+    """Lê o status do projeto de status.json (Feito/Fazendo/Próximo); None se ausente."""
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "status.json")
+    try:
+        with open(path, encoding="utf-8") as handle:
+            return json.load(handle)
+    except Exception:
+        return None
 
 
 def run_pytest():
@@ -123,6 +134,24 @@ def _section(title, subtitle, cases):
         </section>"""
 
 
+def _status_panel(status):
+    """Painel simples de status do projeto (Feito / Fazendo / Próximo)."""
+    if not status:
+        return ""
+    feito = "".join(f"<li>{html.escape(str(x))}</li>" for x in status.get("feito", []))
+    fazendo = html.escape(str(status.get("fazendo", "—")))
+    proximo = html.escape(str(status.get("proximo", "—")))
+    return f"""
+        <section class="status">
+            <h2>Status do projeto</h2>
+            <div class="status-grid">
+                <div><strong>✅ Feito</strong><ul>{feito}</ul></div>
+                <div><strong>🔄 Fazendo</strong><p>{fazendo}</p></div>
+                <div><strong>➡️ Próximo</strong><p>{proximo}</p></div>
+            </div>
+        </section>"""
+
+
 def render_html(summary, cases, raw_tail, generated_at, refresh_seconds=15):
     """Renderiza o relatório de testes como HTML, dividido por nível."""
     ok = summary["failures"] == 0 and summary["errors"] == 0
@@ -136,6 +165,7 @@ def render_html(summary, cases, raw_tail, generated_at, refresh_seconds=15):
         + _section("Baixo nível", "unitário — funções isoladas", baixo)
     )
     raw = html.escape(raw_tail)
+    status_html = _status_panel(load_status())
 
     return f"""<!DOCTYPE html>
 <html lang="pt-BR">
@@ -154,6 +184,12 @@ def render_html(summary, cases, raw_tail, generated_at, refresh_seconds=15):
         .card {{ background: #fff; border: 2px solid #e3ddcf; border-radius: 8px; padding: 12px 16px; min-width: 92px; }}
         .card .n {{ font-size: 1.5rem; font-weight: 700; }}
         .card .l {{ font-size: .8rem; color: #666; }}
+        .status {{ background: #fff; border: 2px solid #e3ddcf; border-radius: 8px; padding: 12px 16px; margin-bottom: 18px; }}
+        .status h2 {{ margin: 0 0 8px 0; font-size: 1.1rem; }}
+        .status-grid {{ display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 16px; }}
+        .status-grid ul {{ margin: 6px 0 0 18px; padding: 0; font-size: .85rem; }}
+        .status-grid p {{ margin: 6px 0 0 0; font-size: .9rem; }}
+        @media (max-width: 720px) {{ .status-grid {{ grid-template-columns: 1fr; }} }}
         .level {{ margin-bottom: 22px; }}
         .level h2 {{ margin: 0 0 2px 0; font-size: 1.1rem; }}
         .level h2 small {{ font-weight: 400; color: #777; font-size: .8rem; }}
@@ -182,6 +218,7 @@ def render_html(summary, cases, raw_tail, generated_at, refresh_seconds=15):
             <div class="card"><div class="n" style="color:#8a8a8a">{summary['skipped']}</div><div class="l">Pulou</div></div>
             <div class="card"><div class="n">{summary['time']:.2f}s</div><div class="l">Duração</div></div>
         </div>
+{status_html}
 {sections}
         <details>
             <summary>Saída bruta do pytest</summary>

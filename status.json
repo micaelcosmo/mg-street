@@ -1,0 +1,12 @@
+{
+  "feito": [
+    "Relatório de testes dividido por nível (alto/baixo)",
+    "Painel de status nesta página",
+    "Dark mode (preto + roxo)",
+    "Modal de novo produto responsivo",
+    "Fuso do relatório corrigido (BRT)",
+    "Backlog 'Loja real' adicionado às tasks"
+  ],
+  "fazendo": "Landing pública antes do login (#4)",
+  "proximo": "Variações de produto — cor/tamanho (#3)"
+}
