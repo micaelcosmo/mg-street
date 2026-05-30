@@ -68,8 +68,8 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
 > Horizonte aprovado: **loja real para público**. Executar pelo ciclo §1, um item por vez.
 
 ### Feedback do cliente (prioridade)
-- [ ] **Dark mode** (paleta preto + roxo) na identidade visual.
-- [ ] **Modal de novo produto responsivo** (não cortar ao aumentar/diminuir a tela).
+- [x] **Dark mode** (paleta preto + roxo) no `:root` + gradientes de loja/admin/placeholder.
+- [x] **Modal de novo produto responsivo** (`max-height: 100vh` + scroll; não corta).
 - [ ] **Variações de produto** (cor/tamanho/etc.) — o admin define na criação; a loja só
       mostra o seletor quando o produto tiver opções.
 - [ ] **Landing pública** antes do login (vitrine inicial da loja sem autenticação).
