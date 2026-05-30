@@ -9,6 +9,7 @@ import jwt
 import psycopg2
 from functools import wraps
 
+import qa_report
 from ratelimit import RateLimiter
 from repositories import (
     categories as categories_repo,
@@ -293,6 +294,20 @@ def create_app():
     @app.route("/ping", methods=["GET"])
     def ping():
         return jsonify({"status": "ok", "message": "pong"})
+
+    @app.route("/tests/report", methods=["GET"])
+    def tests_report():
+        # Diagnóstico de desenvolvimento: roda a suíte e mostra um relatório HTML.
+        if os.getenv("FLASK_ENV") != "development":
+            return jsonify({"error": "Relatório disponível apenas em desenvolvimento."}), 403
+        try:
+            summary, cases, raw_tail = qa_report.run_pytest()
+            generated_at = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            page = qa_report.render_html(summary, cases, raw_tail, generated_at)
+            return page, 200, {"Content-Type": "text/html; charset=utf-8"}
+        except Exception as exc:
+            app.logger.error("Falha ao gerar relatório de testes: %s", exc)
+            return jsonify({"error": "Falha ao rodar os testes."}), 500
 
     @app.route("/api/register", methods=["POST"])
     def register():

@@ -119,6 +119,7 @@ momento da compra (preservam o histórico mesmo se o produto mudar/for removido)
 | POST | `/api/checkout` | token | `{items:[{id,name,price,quantity}]}` | 201 `{message,order_id}` |
 | GET | `/api/preview_token` | admin | — | 200 `{token,user}` |
 | GET | `/`, `/admin`, `/shop` | — | — | HTML (render_template) |
+| GET | `/tests/report` | dev | — | HTML (roda a suíte e mostra o resultado) |
 
 Notas do contrato (o nome das chaves JSON é estável; o schema interno é normalizado):
 - **`category`** em produtos é o **nome** da categoria (string). No POST, é opcional e a
@@ -128,6 +129,8 @@ Notas do contrato (o nome das chaves JSON é estável; o schema interno é norma
   servidor por `calculate_cart_total`.
 - **`/api/orders`** agrega os itens via `json_agg`; cada item retorna
   `{product_id, name, unit_price, quantity}`.
+- **`/tests/report`** (somente `FLASK_ENV=development`) roda a suíte via `qa_report.py`
+  e renderiza um HTML com placar e detalhes; tem auto-refresh para acompanhar ao vivo.
 
 ## Dívidas técnicas conhecidas
 

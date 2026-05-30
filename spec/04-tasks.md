@@ -41,6 +41,8 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
 ### Testes (completar cobertura)
 - [x] Integração de todos os endpoints de produtos (POST/GET/DELETE) com mock de banco
       (`tests/test_integration_products.py`: token/role, sucesso, 400 e 404).
+- [x] Endpoint `GET /tests/report` (dev): roda a suíte e mostra relatório HTML com
+      placar/detalhes e auto-refresh (`qa_report.py`).
 - [x] Aceitação E2E rodando contra Postgres real (`MGSTREET_DB_TESTS=1`, host 5433):
       jornada registrar→logar→checkout cria `orders`+`order_items`; admin valida itens
       agregados e stats; limpa os dados ao final (`tests/test_acceptance_checkout.py`).
