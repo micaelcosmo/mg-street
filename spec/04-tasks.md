@@ -83,7 +83,8 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
       usando `POST /api/register`.
 - [x] Carrinho com quantidade: agrupa item idêntico (id+opções), botões +/− e remover;
       subtotal por linha e contador somando quantidades.
-- [ ] Validação de entrada amigável (email/preço/campos) com mensagens claras.
+- [x] Validação de entrada amigável: e-mail (`validation.is_valid_email`), senha mínima,
+      preço numérico e não-negativo — com mensagens 400 claras.
 - [ ] "Meus pedidos" do cliente: `GET /api/orders/me` + página/seção.
 
 ### Fase B — Loja real (produção e integrações)

@@ -11,6 +11,7 @@ from functools import wraps
 
 import qa_report
 from ratelimit import RateLimiter
+from validation import is_valid_email
 from repositories import (
     categories as categories_repo,
     orders as orders_repo,
@@ -342,6 +343,10 @@ def create_app():
 
         if not name or not email or not password:
             return jsonify({"error": "Dados incompletos."}), 400
+        if not is_valid_email(email):
+            return jsonify({"error": "E-mail inválido."}), 400
+        if len(password) < 4:
+            return jsonify({"error": "A senha deve ter ao menos 4 caracteres."}), 400
 
         try:
             users_repo.create(app.db_conn, name, email, hash_password(password))
@@ -428,6 +433,12 @@ def create_app():
 
         if not name or price is None:
             return jsonify({'error': 'Dados incompletos para produto.'}), 400
+        try:
+            price = float(price)
+        except (TypeError, ValueError):
+            return jsonify({'error': 'Preço deve ser um número.'}), 400
+        if price < 0:
+            return jsonify({'error': 'Preço não pode ser negativo.'}), 400
 
         try:
             category_id = categories_repo.resolve_id(app.db_conn, category)
@@ -472,6 +483,12 @@ def create_app():
 
         if not name or price is None:
             return jsonify({'error': 'Dados incompletos para produto.'}), 400
+        try:
+            price = float(price)
+        except (TypeError, ValueError):
+            return jsonify({'error': 'Preço deve ser um número.'}), 400
+        if price < 0:
+            return jsonify({'error': 'Preço não pode ser negativo.'}), 400
 
         try:
             category_id = categories_repo.resolve_id(app.db_conn, category)

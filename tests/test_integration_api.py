@@ -107,3 +107,19 @@ def test_register_creates_user(client, set_cursor):
 def test_register_incomplete_is_rejected(client):
     resp = client.post("/api/register", json={"email": "x@y.com"})
     assert resp.status_code == 400
+
+
+def test_register_invalid_email_is_rejected(client):
+    resp = client.post(
+        "/api/register",
+        json={"name": "X", "email": "naoeemail", "password": "segredo"},
+    )
+    assert resp.status_code == 400
+
+
+def test_register_short_password_is_rejected(client):
+    resp = client.post(
+        "/api/register",
+        json={"name": "X", "email": "x@y.com", "password": "12"},
+    )
+    assert resp.status_code == 400

@@ -44,6 +44,26 @@ def test_create_product_missing_fields(client, application):
     assert resp.status_code == 400
 
 
+def test_create_product_negative_price_is_rejected(client, application):
+    token = _admin_token(application)
+    resp = client.post(
+        "/api/products",
+        json={"name": "X", "price": -5},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 400
+
+
+def test_create_product_non_numeric_price_is_rejected(client, application):
+    token = _admin_token(application)
+    resp = client.post(
+        "/api/products",
+        json={"name": "X", "price": "abc"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 400
+
+
 def test_create_product_success(client, application, set_cursor):
     # fetchone -> id retornado por "INSERT ... RETURNING id".
     set_cursor(fetchone=(42,))
