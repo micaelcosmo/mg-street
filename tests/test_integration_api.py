@@ -166,6 +166,35 @@ def test_upload_bad_extension_is_rejected(client, application):
     assert resp.status_code == 400
 
 
+def test_cart_requires_token(client):
+    assert client.get("/api/cart").status_code == 401
+
+
+def test_save_cart(client, application, set_cursor):
+    set_cursor()
+    token = jwt.encode({"id": 2, "role": "user"}, application.config["JWT_SECRET"], algorithm="HS256")
+    resp = client.put(
+        "/api/cart",
+        json={"items": [{"id": 1, "name": "Camiseta", "price": 49.9, "quantity": 1}]},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 200
+
+
+def test_save_cart_invalid_items(client, application):
+    token = jwt.encode({"id": 2, "role": "user"}, application.config["JWT_SECRET"], algorithm="HS256")
+    resp = client.put("/api/cart", json={"items": "nope"}, headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 400
+
+
+def test_get_cart_returns_items(client, application, set_cursor):
+    set_cursor(fetchone=([{"id": 1, "name": "Camiseta", "quantity": 2}],))
+    token = jwt.encode({"id": 2, "role": "user"}, application.config["JWT_SECRET"], algorithm="HS256")
+    resp = client.get("/api/cart", headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 200
+    assert len(resp.get_json()["items"]) == 1
+
+
 def test_my_orders_requires_token(client):
     assert client.get("/api/orders/me").status_code == 401
 

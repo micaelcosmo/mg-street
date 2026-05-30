@@ -280,7 +280,7 @@
             } else {
                 cart.push({ id, name: name, price: price, quantity: 1, options: selected });
             }
-            sessionStorage.setItem('mg_cart', JSON.stringify(cart));
+            persistCart(cart);
             showToast('Item adicionado ao carrinho');
             updateCartUI();
         });
@@ -337,7 +337,7 @@
             if (act === 'inc') cart[index].quantity = (cart[index].quantity || 1) + 1;
             else if (act === 'dec') cart[index].quantity = Math.max(1, (cart[index].quantity || 1) - 1);
             else if (act === 'rm') cart.splice(index, 1);
-            sessionStorage.setItem('mg_cart', JSON.stringify(cart));
+            persistCart(cart);
             updateCartUI();
         });
 
@@ -378,7 +378,7 @@
 
                 const data = await resp.json();
                 alert('Pedido enviado com sucesso. ID: ' + (data.order_id || 'N/A'));
-                sessionStorage.removeItem('mg_cart');
+                persistCart([]);
                 updateCartUI();
                 cartPanel.setAttribute('aria-hidden', 'true');
             } catch (err) {
@@ -421,8 +421,32 @@
             }
         });
 
+        // Persistência do carrinho no servidor (aditivo: sessionStorage segue dirigindo a UI).
+        function persistCart(cart) {
+            sessionStorage.setItem('mg_cart', JSON.stringify(cart));
+            fetch('/api/cart', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
+                body: JSON.stringify({ items: cart }),
+            }).catch(function () { /* best-effort */ });
+        }
+
+        async function loadServerCart() {
+            try {
+                const resp = await fetch('/api/cart', { headers: { Authorization: `Bearer ${getToken()}` } });
+                if (resp.ok) {
+                    const items = (await resp.json()).items || [];
+                    const local = JSON.parse(sessionStorage.getItem('mg_cart') || '[]');
+                    if (local.length === 0 && items.length > 0) {
+                        sessionStorage.setItem('mg_cart', JSON.stringify(items));
+                    }
+                }
+            } catch (err) { /* best-effort */ }
+            updateCartUI();
+        }
+
         loadProducts();
-        updateCartUI();
+        loadServerCart();
     </script>
 </body>
 </html>

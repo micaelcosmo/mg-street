@@ -95,7 +95,7 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
 - [ ] E-mails transacionais (confirmação de pedido/registro).
 - [x] Estoque/inventário: coluna `stock` em products; admin define; loja mostra "Esgotado";
       checkout dá baixa atômica e responde 409 se faltar saldo.
-- [ ] Persistir carrinho no servidor.
+- [x] Persistir carrinho no servidor: tabela `carts` (1 por usuário) + `GET`/`PUT /api/cart`; o shop sincroniza (aditivo, sessionStorage segue dirigindo a UI).
 
 ### Fase C — Qualidade / escala
 - [x] Busca server-side (`?q=`) e paginação opt-in (`?page`/`?per_page`) em `/api/products`; admin usa busca no servidor (debounce).

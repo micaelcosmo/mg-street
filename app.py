@@ -16,6 +16,7 @@ from logging_setup import configure_logging
 from ratelimit import RateLimiter
 from validation import is_valid_email
 from repositories import (
+    cart as cart_repo,
     categories as categories_repo,
     orders as orders_repo,
     products as products_repo,
@@ -314,12 +315,28 @@ def create_order_items_table(app):
     app.logger.info("Tabela order_items garantida no banco.")
 
 
+def create_carts_table(app):
+    with app.db_conn.cursor() as cursor:
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS carts (
+                user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+                items JSONB NOT NULL DEFAULT '[]'::jsonb,
+                updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+            );
+            """
+        )
+    app.db_conn.commit()
+    app.logger.info("Tabela carts garantida no banco.")
+
+
 def initialize_database(app):
     create_users_table(app)
     create_categories_table(app)
     create_products_table(app)
     create_orders_table(app)
     create_order_items_table(app)
+    create_carts_table(app)
 
 
 def create_app():
@@ -588,6 +605,30 @@ def create_app():
         except Exception as exc:
             app.logger.error('Erro ao listar meus pedidos: %s', exc)
             return jsonify({'error': 'Falha ao listar pedidos.'}), 500
+
+    @app.route('/api/cart', methods=['GET'])
+    @token_required
+    def get_cart(payload):
+        try:
+            items = cart_repo.get_items(app.db_conn, payload.get('id'))
+            return jsonify({'items': items}), 200
+        except Exception as exc:
+            app.logger.error('Erro ao carregar carrinho: %s', exc)
+            return jsonify({'error': 'Falha ao carregar carrinho.'}), 500
+
+    @app.route('/api/cart', methods=['PUT'])
+    @token_required
+    def save_cart(payload):
+        data = request.get_json() or {}
+        items = data.get('items')
+        if not isinstance(items, list):
+            return jsonify({'error': 'Itens inválidos.'}), 400
+        try:
+            cart_repo.save_items(app.db_conn, payload.get('id'), items)
+            return jsonify({'message': 'Carrinho salvo.'}), 200
+        except Exception as exc:
+            app.logger.error('Erro ao salvar carrinho: %s', exc)
+            return jsonify({'error': 'Falha ao salvar carrinho.'}), 500
 
     @app.route('/api/orders/stats', methods=['GET'])
     @admin_required

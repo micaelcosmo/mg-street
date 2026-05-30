@@ -3,10 +3,10 @@
     "Fase A completa",
     "Estoque + rate limits + busca/paginação",
     "Produção (gunicorn) + logs + a11y",
-    "Upload local de imagens"
+    "Upload de imagens + carrinho persistente"
   ],
-  "fazendo": "Tagueando milestones (0.4.0 Fase A, 0.5.0 lote loja-real)",
-  "proximo": "Persistir carrinho no servidor (grátis). Pagamento/e-mail: pulados ($)",
+  "fazendo": "Backlog GRÁTIS concluído — milestone 0.6.0",
+  "proximo": "Restam só itens com custo/ops: pagamento, e-mail, HTTPS/segredos, CI (escopo do token)",
   "custo": {
     "faixa": "Estimativa manual: médio",
     "nota": "O app não acessa o faturamento real da Claude — valor exato no painel de billing da Anthropic. Este box é atualizado à mão."

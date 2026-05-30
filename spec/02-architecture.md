@@ -11,6 +11,7 @@ repositories/         # camada de dados — SQL das rotas isolado por entidade
   products.py         #   list_all, create, delete
   orders.py           #   create_with_items (transação), list_with_items, stats
   categories.py       #   resolve_id (upsert)
+  cart.py             #   get_items, save_items (carrinho por usuário)
 templates/            # login.html, admin.html, shop.html (HTML + JS inline)
 static/               # style.css, logo/
 Dockerfile            # python:3.11-slim, usuário não-root (appuser), expõe 5001
@@ -120,6 +121,9 @@ momento da compra (preservam o histórico mesmo se o produto mudar/for removido)
 | DELETE | `/api/products/<id>` | admin | — | 200 `{message}` |
 | GET | `/api/orders` | admin | — | 200 `{orders:[{...,items:[...]}]}` |
 | GET | `/api/orders/me` | token | — | 200 `{orders:[...]}` (do próprio usuário) |
+| GET | `/api/cart` | token | — | 200 `{items:[...]}` (carrinho salvo) |
+| PUT | `/api/cart` | token | `{items:[...]}` | 200 `{message}` |
+| POST | `/api/upload` | admin | arquivo `file` (multipart) | 201 `{url}` |
 | GET | `/api/orders/stats` | admin | — | 200 `{total_orders,total_revenue}` |
 | POST | `/api/checkout` | token | `{items:[{id,name,price,quantity}]}` | 201 `{message,order_id}` |
 | GET | `/api/preview_token` | admin | — | 200 `{token,user}` |
