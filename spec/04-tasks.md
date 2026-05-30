@@ -98,7 +98,7 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
 - [ ] Persistir carrinho no servidor.
 
 ### Fase C — Qualidade / escala
-- [ ] Paginação + busca server-side de produtos.
+- [x] Busca server-side (`?q=`) e paginação opt-in (`?page`/`?per_page`) em `/api/products`; admin usa busca no servidor (debounce).
 - [ ] CI: workflow **pronto** em `.github/workflows/ci.yml` (roda `pytest`), mas o push foi
       recusado — o token não tem escopo `workflow`. Habilitar: dar escopo `workflow` ao PAT
       e versionar o arquivo, **ou** criar pela aba Actions do GitHub colando o conteúdo.

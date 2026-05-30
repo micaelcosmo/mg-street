@@ -1,12 +1,12 @@
 {
   "feito": [
     "Fase A COMPLETA",
-    "Estoque (baixa no checkout)",
-    "Rate limit em login/register/checkout",
+    "Estoque + rate limits",
+    "Busca server-side + paginação",
     "Dark mode + landing + variações"
   ],
-  "fazendo": "Fase C — paginação + busca server-side de produtos",
-  "proximo": "Logs estruturados; persistir carrinho. CI: arquivo pronto, precisa de escopo workflow no token",
+  "fazendo": "Fase C — logs/observabilidade (leve)",
+  "proximo": "Persistir carrinho (server-side). CI: precisa escopo workflow. Pagamento/e-mail/upload pago: pulados",
   "custo": {
     "faixa": "Estimativa manual: médio",
     "nota": "O app não acessa o faturamento real da Claude — valor exato no painel de billing da Anthropic. Este box é atualizado à mão."

@@ -479,8 +479,18 @@ def create_app():
     @app.route('/api/products', methods=['GET'])
     @token_required
     def list_products(payload):
+        q = request.args.get('q') or None
+        limit = None
+        offset = 0
+        per_page = request.args.get('per_page')
+        if per_page:
+            try:
+                limit = max(1, min(100, int(per_page)))
+                offset = max(0, (int(request.args.get('page', 1) or 1) - 1) * limit)
+            except (TypeError, ValueError):
+                limit = None
         try:
-            rows = products_repo.list_all(app.db_conn)
+            rows = products_repo.search(app.db_conn, q, limit, offset)
             return jsonify({'products': serialize_products(rows)}), 200
         except Exception as exc:
             app.logger.error('Erro ao listar produtos: %s', exc)

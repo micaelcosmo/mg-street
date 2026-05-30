@@ -158,6 +158,21 @@ def test_create_product_with_options(client, application, set_cursor):
     assert resp.status_code == 201
 
 
+def test_list_products_with_search(client, application, set_cursor):
+    set_cursor(fetchall=[(1, "Camiseta Preta", "d", 49.9, "", "camisetas", {}, 10)])
+    token = _user_token(application)
+    resp = client.get("/api/products?q=camis", headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 200
+    assert len(resp.get_json()["products"]) == 1
+
+
+def test_list_products_pagination_params(client, application, set_cursor):
+    set_cursor(fetchall=[(1, "Camiseta", "d", 49.9, "", "camisetas", {}, 10)])
+    token = _user_token(application)
+    resp = client.get("/api/products?page=1&per_page=5", headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 200
+
+
 def test_list_products_includes_options(client, application, set_cursor):
     set_cursor(fetchall=[(1, "Camiseta", "algodao", 49.9, "", "camisetas", {"Cor": ["Preto", "Roxo"]})])
     token = _user_token(application)

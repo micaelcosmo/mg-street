@@ -135,12 +135,13 @@
         const productsCount = document.getElementById('products-count');
         let currentProducts = [];
 
-        async function fetchAndRenderProducts() {
+        async function fetchAndRenderProducts(q) {
             const token = localStorage.getItem('mgstreet_token');
             tbody.innerHTML = '';
             emptyState.style.display = 'none';
             try {
-                const resp = await fetch('/api/products', { headers: { 'Authorization': `Bearer ${token}` } });
+                const url = '/api/products' + (q ? ('?q=' + encodeURIComponent(q)) : '');
+                const resp = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
                 if (!resp.ok) { throw new Error('Falha ao buscar produtos'); }
                 const data = await resp.json();
                 const products = data.products || [];
@@ -264,13 +265,12 @@
             }
         });
 
-        // Simple search
+        // Busca server-side (debounce) via ?q=
+        let searchTimer = null;
         document.getElementById('search-products').addEventListener('input', function (e) {
-            const q = e.target.value.toLowerCase();
-            Array.from(tbody.querySelectorAll('tr')).forEach(tr => {
-                const name = tr.children[1]?.textContent.toLowerCase() || '';
-                tr.style.display = name.includes(q) ? '' : 'none';
-            });
+            clearTimeout(searchTimer);
+            const q = e.target.value.trim();
+            searchTimer = setTimeout(function () { fetchAndRenderProducts(q); }, 300);
         });
 
         // Initial load

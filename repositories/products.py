@@ -1,15 +1,30 @@
 import json
 
 
-def list_all(conn):
-    """Retorna (id, name, description, price, image_url, category_name, options, stock)."""
+def search(conn, q=None, limit=None, offset=0):
+    """Lista produtos, opcionalmente filtrando por nome (q) e paginando (limit/offset)."""
+    where = ""
+    params = []
+    if q:
+        where = "WHERE p.name ILIKE %s "
+        params.append("%" + q + "%")
+    sql = (
+        "SELECT p.id, p.name, p.description, p.price, p.image_url, c.name, p.options, p.stock "
+        "FROM products p LEFT JOIN categories c ON p.category_id = c.id "
+        + where
+        + "ORDER BY p.id DESC"
+    )
+    if limit is not None:
+        sql += " LIMIT %s OFFSET %s"
+        params.extend([limit, offset])
     with conn.cursor() as cursor:
-        cursor.execute(
-            "SELECT p.id, p.name, p.description, p.price, p.image_url, c.name, p.options, p.stock "
-            "FROM products p LEFT JOIN categories c ON p.category_id = c.id "
-            "ORDER BY p.id DESC"
-        )
+        cursor.execute(sql, tuple(params))
         return cursor.fetchall()
+
+
+def list_all(conn):
+    """Atalho: todos os produtos (sem filtro/paginação)."""
+    return search(conn)
 
 
 def create(conn, name, description, price, image_url, category_id, options=None, stock=0):
