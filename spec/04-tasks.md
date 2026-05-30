@@ -93,7 +93,8 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
 - [ ] Servir em produção: WSGI (gunicorn), `debug=False`, perfis dev/prod.
 - [ ] Segredos fortes + HTTPS (reverse proxy).
 - [ ] E-mails transacionais (confirmação de pedido/registro).
-- [ ] Estoque/inventário (baixa no checkout).
+- [x] Estoque/inventário: coluna `stock` em products; admin define; loja mostra "Esgotado";
+      checkout dá baixa atômica e responde 409 se faltar saldo.
 - [ ] Persistir carrinho no servidor.
 
 ### Fase C — Qualidade / escala

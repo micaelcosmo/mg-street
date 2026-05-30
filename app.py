@@ -57,6 +57,7 @@ def serialize_products(rows):
             "image_url": row[4],
             "category": row[5],
             "options": row[6] if len(row) > 6 else {},
+            "stock": row[7] if len(row) > 7 else None,
         }
         for row in rows
     ]
@@ -235,13 +236,15 @@ def create_products_table(app):
                 image_url TEXT,
                 category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,
                 options JSONB NOT NULL DEFAULT '{}'::jsonb,
+                stock INTEGER NOT NULL DEFAULT 100 CHECK (stock >= 0),
                 created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
             );
             """
         )
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_products_category_id ON products (category_id);")
-        # Opções/variações do produto (cor, tamanho, ...) — idempotente para schema existente.
+        # Opções/variações e estoque — idempotente para schema existente.
         cursor.execute("ALTER TABLE products ADD COLUMN IF NOT EXISTS options JSONB NOT NULL DEFAULT '{}'::jsonb;")
+        cursor.execute("ALTER TABLE products ADD COLUMN IF NOT EXISTS stock INTEGER NOT NULL DEFAULT 100;")
         # Popula produtos de exemplo para dar contexto à UI do admin.
         cursor.execute('SELECT COUNT(1) FROM products')
         count = cursor.fetchone()[0]
@@ -444,6 +447,7 @@ def create_app():
         image_url = data.get('image_url')
         category = data.get('category')
         options = data.get('options') or {}
+        stock = data.get('stock', 0)
 
         if not name or price is None:
             return jsonify({'error': 'Dados incompletos para produto.'}), 400
@@ -456,7 +460,7 @@ def create_app():
 
         try:
             category_id = categories_repo.resolve_id(app.db_conn, category)
-            product_id = products_repo.create(app.db_conn, name, description, price, image_url, category_id, options)
+            product_id = products_repo.create(app.db_conn, name, description, price, image_url, category_id, options, stock)
             return jsonify({'message': 'Produto criado.', 'id': product_id}), 201
         except Exception as exc:
             app.logger.error('Erro ao criar produto: %s', exc)
@@ -494,6 +498,7 @@ def create_app():
         image_url = data.get('image_url')
         category = data.get('category')
         options = data.get('options') or {}
+        stock = data.get('stock', 0)
 
         if not name or price is None:
             return jsonify({'error': 'Dados incompletos para produto.'}), 400
@@ -507,7 +512,7 @@ def create_app():
         try:
             category_id = categories_repo.resolve_id(app.db_conn, category)
             updated_id = products_repo.update(
-                app.db_conn, product_id, name, description, price, image_url, category_id, options
+                app.db_conn, product_id, name, description, price, image_url, category_id, options, stock
             )
             if updated_id is None:
                 return jsonify({'error': 'Produto não encontrado.'}), 404
@@ -561,6 +566,8 @@ def create_app():
         try:
             order_id = orders_repo.create_with_items(app.db_conn, payload.get('id'), items, total)
             return jsonify({'message': 'Pedido registrado.', 'order_id': order_id}), 201
+        except orders_repo.OutOfStockError as exc:
+            return jsonify({'error': f'Estoque insuficiente para "{exc}".'}), 409
         except Exception as exc:
             app.logger.error('Falha ao criar pedido: %s', exc)
             return jsonify({'error': 'Falha ao criar pedido.'}), 500

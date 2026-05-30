@@ -1,15 +1,12 @@
 {
   "feito": [
-    "Docker em D: (C: liberou ~8GB)",
+    "Docker em D:",
+    "Fase A COMPLETA (CRUD, cadastro, carrinho c/ qtd, validação, meus pedidos)",
     "Dark mode + landing + variações",
-    "CRUD de produto completo",
-    "Cadastro de cliente",
-    "Carrinho com quantidade",
-    "Validação amigável",
-    "Fase A COMPLETA: Meus pedidos do cliente"
+    "Estoque/inventário (baixa no checkout, 'Esgotado', 409)"
   ],
-  "fazendo": "Fase B (grátis) — estoque/inventário (baixa no checkout)",
-  "proximo": "Persistir carrinho; gunicorn; Fase C: CI, paginação, rate-limit. Pagamento: pulado (custo $)",
+  "fazendo": "Fase B/C (grátis) — rate limit em register/checkout",
+  "proximo": "CI (GitHub Actions); paginação; persistir carrinho. Pagamento/e-mail/upload pago: pulados",
   "custo": {
     "faixa": "Estimativa manual: médio",
     "nota": "O app não acessa o faturamento real da Claude — valor exato no painel de billing da Anthropic. Este box é atualizado à mão."

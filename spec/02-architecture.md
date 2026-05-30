@@ -71,6 +71,7 @@ Seed: `camisetas`, `calcas`, `meias` (idempotente, `ON CONFLICT DO NOTHING`).
 | image_url | TEXT |
 | category_id | INTEGER FK → categories(id) ON DELETE SET NULL |
 | options | JSONB NOT NULL DEFAULT '{}' (variações: ex. `{"Cor":["Preto","Roxo"]}`) |
+| stock | INTEGER NOT NULL DEFAULT 100 CHECK (stock >= 0) |
 | created_at | TIMESTAMPTZ NOT NULL DEFAULT now() |
 
 Índice: `idx_products_category_id`. Seed: 4 produtos de exemplo se a tabela estiver vazia.
@@ -132,7 +133,8 @@ Notas do contrato (o nome das chaves JSON é estável; o schema interno é norma
   categoria é criada sob demanda (`categories.resolve_id`); no GET vem via `LEFT JOIN`.
 - **`/api/checkout`** cria 1 `orders` + N `order_items` de forma **atômica** (transação;
   `autocommit` desligado só nesse bloco, com `rollback` no erro). `total` é calculado no
-  servidor por `calculate_cart_total`.
+  servidor por `calculate_cart_total`. Dá **baixa atômica de estoque** (`stock`) por item;
+  se faltar saldo, faz rollback e responde **409** (`OutOfStockError`).
 - **`/api/orders`** agrega os itens via `json_agg`; cada item retorna
   `{product_id, name, unit_price, quantity}`.
 - **`/tests/report`** (somente `FLASK_ENV=development`) roda a suíte via `qa_report.py`

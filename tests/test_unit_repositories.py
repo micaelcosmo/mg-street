@@ -92,6 +92,18 @@ def test_create_with_items_returns_order_id_and_restores_autocommit():
     assert conn.autocommit is True  # religado no finally
 
 
+def test_create_with_items_out_of_stock_raises_and_rolls_back():
+    conn = MagicMock()
+    cursor = MagicMock()
+    cursor.fetchone.return_value = (10,)  # id do pedido
+    cursor.rowcount = 0  # UPDATE de estoque não afetou linhas -> sem saldo
+    conn.cursor.return_value.__enter__.return_value = cursor
+    with pytest.raises(orders.OutOfStockError):
+        orders.create_with_items(conn, 1, [{"id": 1, "name": "Camiseta", "price": 10, "quantity": 5}], 50)
+    conn.rollback.assert_called_once()
+    assert conn.autocommit is True
+
+
 def test_create_with_items_rolls_back_on_error():
     conn = MagicMock()
     cursor = MagicMock()

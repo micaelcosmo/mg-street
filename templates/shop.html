@@ -156,6 +156,7 @@
                 const opts = (options[key] || []).map(function (v) { return `<option value="${v}">${v}</option>`; }).join('');
                 return `<label class="product-option"><span>${key}</span><select data-opt="${key}">${opts}</select></label>`;
             }).join('');
+            const soldOut = product.stock != null && product.stock <= 0;
             card.innerHTML = `
                 <div class="product-img">
                     <img src="${product.image_url || ''}" alt="${product.name}"/>
@@ -167,7 +168,9 @@
                     ${optionsHtml ? `<div class="product-options">${optionsHtml}</div>` : ''}
                     <div class="product-footer">
                         <strong>R$ ${product.price != null ? Number(product.price).toFixed(2) : '0.00'}</strong>
-                        <button class="btn buy-btn" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">Comprar</button>
+                        ${soldOut
+                            ? '<span class="muted">Esgotado</span>'
+                            : `<button class="btn buy-btn" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">Comprar</button>`}
                     </div>
                 </div>
             `;

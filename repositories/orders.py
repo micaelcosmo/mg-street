@@ -1,6 +1,10 @@
 import json
 
 
+class OutOfStockError(Exception):
+    """Levantada quando não há estoque suficiente para um item do pedido."""
+
+
 def create_with_items(conn, user_id, items, total):
     """Cria um pedido e seus itens de forma atômica; retorna o order_id.
 
@@ -16,16 +20,26 @@ def create_with_items(conn, user_id, items, total):
             )
             order_id = cursor.fetchone()[0]
             for item in items:
+                product_id = item.get("id")
+                quantity = int(item.get("quantity", 1) or 1)
+                # Baixa de estoque atômica: só desce se houver saldo suficiente.
+                if product_id is not None:
+                    cursor.execute(
+                        "UPDATE products SET stock = stock - %s WHERE id = %s AND stock >= %s",
+                        (quantity, product_id, quantity),
+                    )
+                    if cursor.rowcount == 0:
+                        raise OutOfStockError(item.get("name", "produto"))
                 cursor.execute(
                     "INSERT INTO order_items "
                     "(order_id, product_id, product_name, unit_price, quantity, selected_options) "
                     "VALUES (%s, %s, %s, %s, %s, %s)",
                     (
                         order_id,
-                        item.get("id"),
+                        product_id,
                         item.get("name", ""),
                         float(item.get("price", 0) or 0),
-                        int(item.get("quantity", 1) or 1),
+                        quantity,
                         json.dumps(item.get("options") or {}),
                     ),
                 )

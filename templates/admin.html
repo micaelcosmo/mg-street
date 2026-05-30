@@ -102,6 +102,8 @@
                 <input type="text" name="description" />
                 <label>Preço</label>
                 <input type="number" name="price" step="0.01" required />
+                <label>Estoque</label>
+                <input type="number" name="stock" min="0" step="1" value="10" />
                 <label>Imagem URL</label>
                 <input type="text" name="image_url" />
                 <label>Categoria</label>
@@ -199,6 +201,7 @@
             productForm.price.value = product.price != null ? product.price : '';
             productForm.image_url.value = product.image_url || '';
             productForm.category.value = product.category || '';
+            productForm.stock.value = product.stock != null ? product.stock : 0;
             productForm.options.value = optionsToText(product.options);
             modal.setAttribute('aria-hidden', 'false');
         }
@@ -228,7 +231,7 @@
         productForm.addEventListener('submit', async function (e) {
             e.preventDefault();
             const form = new FormData(productForm);
-            const payload = { name: form.get('name'), description: form.get('description'), price: parseFloat(form.get('price')), image_url: form.get('image_url'), category: form.get('category'), options: parseOptions(form.get('options')) };
+            const payload = { name: form.get('name'), description: form.get('description'), price: parseFloat(form.get('price')), image_url: form.get('image_url'), category: form.get('category'), options: parseOptions(form.get('options')), stock: parseInt(form.get('stock'), 10) || 0 };
             const token = localStorage.getItem('mgstreet_token');
             const method = editingId ? 'PUT' : 'POST';
             const url = editingId ? `/api/products/${editingId}` : '/api/products';
