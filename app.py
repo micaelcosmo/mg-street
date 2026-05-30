@@ -55,6 +55,7 @@ def serialize_products(rows):
             "price": float(row[3]) if row[3] is not None else None,
             "image_url": row[4],
             "category": row[5],
+            "options": row[6] if len(row) > 6 else {},
         }
         for row in rows
     ]
@@ -218,11 +219,14 @@ def create_products_table(app):
                 price NUMERIC(10, 2) NOT NULL CHECK (price >= 0),
                 image_url TEXT,
                 category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,
+                options JSONB NOT NULL DEFAULT '{}'::jsonb,
                 created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
             );
             """
         )
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_products_category_id ON products (category_id);")
+        # Opções/variações do produto (cor, tamanho, ...) — idempotente para schema existente.
+        cursor.execute("ALTER TABLE products ADD COLUMN IF NOT EXISTS options JSONB NOT NULL DEFAULT '{}'::jsonb;")
         # Popula produtos de exemplo para dar contexto à UI do admin.
         cursor.execute('SELECT COUNT(1) FROM products')
         count = cursor.fetchone()[0]
@@ -273,11 +277,14 @@ def create_order_items_table(app):
                 product_id INTEGER REFERENCES products(id) ON DELETE SET NULL,
                 product_name TEXT NOT NULL,
                 unit_price NUMERIC(10, 2) NOT NULL CHECK (unit_price >= 0),
-                quantity INTEGER NOT NULL CHECK (quantity > 0)
+                quantity INTEGER NOT NULL CHECK (quantity > 0),
+                selected_options JSONB NOT NULL DEFAULT '{}'::jsonb
             );
             """
         )
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items (order_id);")
+        # Opções escolhidas no momento da compra (snapshot) — idempotente.
+        cursor.execute("ALTER TABLE order_items ADD COLUMN IF NOT EXISTS selected_options JSONB NOT NULL DEFAULT '{}'::jsonb;")
     app.db_conn.commit()
     app.logger.info("Tabela order_items garantida no banco.")
 
@@ -413,13 +420,14 @@ def create_app():
         price = data.get('price')
         image_url = data.get('image_url')
         category = data.get('category')
+        options = data.get('options') or {}
 
         if not name or price is None:
             return jsonify({'error': 'Dados incompletos para produto.'}), 400
 
         try:
             category_id = categories_repo.resolve_id(app.db_conn, category)
-            product_id = products_repo.create(app.db_conn, name, description, price, image_url, category_id)
+            product_id = products_repo.create(app.db_conn, name, description, price, image_url, category_id, options)
             return jsonify({'message': 'Produto criado.', 'id': product_id}), 201
         except Exception as exc:
             app.logger.error('Erro ao criar produto: %s', exc)

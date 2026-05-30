@@ -106,6 +106,8 @@
                 <input type="text" name="image_url" />
                 <label>Categoria</label>
                 <input type="text" name="category" placeholder="ex: camisetas" />
+                <label>Opções (uma por linha — ex.: Cor: Preto, Roxo)</label>
+                <textarea name="options" rows="3" placeholder="Cor: Preto, Roxo&#10;Tamanho: P, M, G"></textarea>
                 <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end;">
                     <button type="button" id="cancel-product" class="btn btn-ghost">Cancelar</button>
                     <button type="submit" class="btn">Salvar</button>
@@ -172,10 +174,23 @@
         document.getElementById('new-product-btn').addEventListener('click', openModal);
         cancelBtn.addEventListener('click', closeModal);
 
+        // Converte "Cor: Preto, Roxo" (uma por linha) em { Cor: ["Preto","Roxo"] }.
+        function parseOptions(text) {
+            const options = {};
+            (text || '').split('\n').forEach(function (line) {
+                const idx = line.indexOf(':');
+                if (idx === -1) return;
+                const key = line.slice(0, idx).trim();
+                const values = line.slice(idx + 1).split(',').map(function (v) { return v.trim(); }).filter(Boolean);
+                if (key && values.length) options[key] = values;
+            });
+            return options;
+        }
+
         productForm.addEventListener('submit', async function (e) {
             e.preventDefault();
             const form = new FormData(productForm);
-            const payload = { name: form.get('name'), description: form.get('description'), price: parseFloat(form.get('price')), image_url: form.get('image_url'), category: form.get('category') };
+            const payload = { name: form.get('name'), description: form.get('description'), price: parseFloat(form.get('price')), image_url: form.get('image_url'), category: form.get('category'), options: parseOptions(form.get('options')) };
             const token = localStorage.getItem('mgstreet_token');
             try {
                 const resp = await fetch('/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(payload) });

@@ -276,6 +276,30 @@ form {
     opacity: 1;
 }
 
+.product-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 4px 0 2px;
+}
+
+.product-option {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.product-option select {
+    padding: 6px 8px;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    background: var(--surface-alt);
+    color: var(--ink);
+}
+
+
 .modal {
     position: fixed;
     inset: 0;

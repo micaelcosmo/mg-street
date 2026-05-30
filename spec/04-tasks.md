@@ -70,8 +70,9 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
 ### Feedback do cliente (prioridade)
 - [x] **Dark mode** (paleta preto + roxo) no `:root` + gradientes de loja/admin/placeholder.
 - [x] **Modal de novo produto responsivo** (`max-height: 100vh` + scroll; não corta).
-- [ ] **Variações de produto** (cor/tamanho/etc.) — o admin define na criação; a loja só
-      mostra o seletor quando o produto tiver opções.
+- [x] **Variações de produto** (cor/tamanho): coluna `options` (JSONB) em products e
+      `selected_options` em order_items; admin define na criação (textarea), a loja mostra
+      seletores só quando há opções; escolha vai pro carrinho/checkout.
 - [x] **Landing pública** antes do login: `/` = vitrine (`landing.html` + `GET /api/public/products`);
       login movido para `/login`; redirects de "não logado" apontam para `/login`.
 

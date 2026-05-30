@@ -70,6 +70,7 @@ Seed: `camisetas`, `calcas`, `meias` (idempotente, `ON CONFLICT DO NOTHING`).
 | price | NUMERIC(10,2) NOT NULL CHECK (price >= 0) |
 | image_url | TEXT |
 | category_id | INTEGER FK → categories(id) ON DELETE SET NULL |
+| options | JSONB NOT NULL DEFAULT '{}' (variações: ex. `{"Cor":["Preto","Roxo"]}`) |
 | created_at | TIMESTAMPTZ NOT NULL DEFAULT now() |
 
 Índice: `idx_products_category_id`. Seed: 4 produtos de exemplo se a tabela estiver vazia.
@@ -93,6 +94,7 @@ Seed: `camisetas`, `calcas`, `meias` (idempotente, `ON CONFLICT DO NOTHING`).
 | product_name | TEXT NOT NULL (snapshot do nome na compra) |
 | unit_price | NUMERIC(10,2) NOT NULL CHECK (unit_price >= 0) |
 | quantity | INTEGER NOT NULL CHECK (quantity > 0) |
+| selected_options | JSONB NOT NULL DEFAULT '{}' (variações escolhidas no checkout) |
 
 Índice: `idx_order_items_order_id`. O `product_name`/`unit_price` são **snapshots** do
 momento da compra (preservam o histórico mesmo se o produto mudar/for removido).

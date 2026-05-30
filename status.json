@@ -1,12 +1,12 @@
 {
   "feito": [
-    "Relatório de testes dividido por nível (alto/baixo)",
-    "Painel de status nesta página",
+    "Relatório de testes dividido por nível + painel de status",
     "Dark mode (preto + roxo)",
     "Modal de novo produto responsivo",
-    "Landing pública antes do login (/ = vitrine, login em /login)",
-    "Backlog 'Loja real' adicionado às tasks"
+    "Landing pública antes do login",
+    "Variações de produto (cor/tamanho) ponta a ponta",
+    "Backlog 'Loja real' nas tasks"
   ],
-  "fazendo": "Variações de produto — cor/tamanho (#3)",
-  "proximo": "Fase A: editar produto, cadastro de cliente, quantidade no carrinho"
+  "fazendo": "PAUSADO p/ priorizar disco: mover dados do Docker para D:",
+  "proximo": "Retomar Fase A (editar produto, cadastro de cliente, quantidade no carrinho)"
 }

@@ -119,3 +119,28 @@ def test_delete_product_not_found(client, application, set_cursor):
     token = _admin_token(application)
     resp = client.delete("/api/products/999", headers={"Authorization": f"Bearer {token}"})
     assert resp.status_code == 404
+
+
+# ---- Variações de produto (options) ----
+
+def test_create_product_with_options(client, application, set_cursor):
+    set_cursor(fetchone=(8,))
+    token = _admin_token(application)
+    resp = client.post(
+        "/api/products",
+        json={
+            "name": "Camiseta",
+            "price": 49.9,
+            "options": {"Cor": ["Preto", "Roxo"], "Tamanho": ["P", "M"]},
+        },
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert resp.status_code == 201
+
+
+def test_list_products_includes_options(client, application, set_cursor):
+    set_cursor(fetchall=[(1, "Camiseta", "algodao", 49.9, "", "camisetas", {"Cor": ["Preto", "Roxo"]})])
+    token = _user_token(application)
+    resp = client.get("/api/products", headers={"Authorization": f"Bearer {token}"})
+    assert resp.status_code == 200
+    assert resp.get_json()["products"][0]["options"] == {"Cor": ["Preto", "Roxo"]}

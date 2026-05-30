@@ -142,6 +142,11 @@
         function createProductCard(product) {
             const card = document.createElement('article');
             card.className = 'product-card';
+            const options = product.options || {};
+            const optionsHtml = Object.keys(options).map(function (key) {
+                const opts = (options[key] || []).map(function (v) { return `<option value="${v}">${v}</option>`; }).join('');
+                return `<label class="product-option"><span>${key}</span><select data-opt="${key}">${opts}</select></label>`;
+            }).join('');
             card.innerHTML = `
                 <div class="product-img">
                     <img src="${product.image_url || ''}" alt="${product.name}"/>
@@ -150,6 +155,7 @@
                     <span class="product-tag">${getCategoryLabel(normalizeCategory(product.category))}</span>
                     <h4>${product.name}</h4>
                     <p class="muted">${product.description || ''}</p>
+                    ${optionsHtml ? `<div class="product-options">${optionsHtml}</div>` : ''}
                     <div class="product-footer">
                         <strong>R$ ${product.price != null ? Number(product.price).toFixed(2) : '0.00'}</strong>
                         <button class="btn buy-btn" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">Comprar</button>
@@ -241,8 +247,18 @@
             const id = btn.getAttribute('data-id');
             const name = btn.getAttribute('data-name');
             const price = parseFloat(btn.getAttribute('data-price')) || 0;
+
+            // Coleta as opções escolhidas (cor/tamanho/...) do card, se houver.
+            const selected = {};
+            const card = btn.closest('.product-card');
+            if (card) {
+                card.querySelectorAll('select[data-opt]').forEach(function (sel) {
+                    selected[sel.getAttribute('data-opt')] = sel.value;
+                });
+            }
+
             const cart = JSON.parse(sessionStorage.getItem('mg_cart') || '[]');
-            const item = { id, name: name, price: price, quantity: 1 };
+            const item = { id, name: name, price: price, quantity: 1, options: selected };
 
             cart.push(item);
             sessionStorage.setItem('mg_cart', JSON.stringify(cart));
@@ -266,9 +282,12 @@
             cart.forEach((item) => {
                 const row = document.createElement('div');
                 row.className = 'cart-item';
+                const opts = item.options || {};
+                const optsText = Object.keys(opts).map(function (k) { return `${k}: ${opts[k]}`; }).join(' · ');
                 row.innerHTML = `
                     <div>
                         <strong>${item.name}</strong>
+                        ${optsText ? `<div class="muted">${optsText}</div>` : ''}
                         <div class="muted">Qtd. ${item.quantity || 1}</div>
                     </div>
                     <div>R$ ${item.price != null ? Number(item.price).toFixed(2) : '0.00'}</div>

@@ -53,6 +53,10 @@ def test_create_returns_new_id():
     assert products.create(_conn(fetchone=(9,)), "Camiseta", "d", 49.9, "", None) == 9
 
 
+def test_create_with_options_returns_id():
+    assert products.create(_conn(fetchone=(9,)), "Camiseta", "d", 49.9, "", None, {"Cor": ["Preto"]}) == 9
+
+
 def test_delete_existing_returns_id():
     assert products.delete(_conn(fetchone=(1,)), 1) == 1
 

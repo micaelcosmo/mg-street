@@ -1,21 +1,24 @@
+import json
+
+
 def list_all(conn):
-    """Retorna linhas (id, name, description, price, image_url, category_name)."""
+    """Retorna linhas (id, name, description, price, image_url, category_name, options)."""
     with conn.cursor() as cursor:
         cursor.execute(
-            "SELECT p.id, p.name, p.description, p.price, p.image_url, c.name "
+            "SELECT p.id, p.name, p.description, p.price, p.image_url, c.name, p.options "
             "FROM products p LEFT JOIN categories c ON p.category_id = c.id "
             "ORDER BY p.id DESC"
         )
         return cursor.fetchall()
 
 
-def create(conn, name, description, price, image_url, category_id):
-    """Insere um produto e retorna o id criado."""
+def create(conn, name, description, price, image_url, category_id, options=None):
+    """Insere um produto (com opções/variações) e retorna o id criado."""
     with conn.cursor() as cursor:
         cursor.execute(
-            "INSERT INTO products (name, description, price, image_url, category_id) "
-            "VALUES (%s, %s, %s, %s, %s) RETURNING id",
-            (name, description, price, image_url, category_id),
+            "INSERT INTO products (name, description, price, image_url, category_id, options) "
+            "VALUES (%s, %s, %s, %s, %s, %s) RETURNING id",
+            (name, description, price, image_url, category_id, json.dumps(options or {})),
         )
         product_id = cursor.fetchone()[0]
     conn.commit()
