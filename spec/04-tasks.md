@@ -81,7 +81,8 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
       inclui opções). Fecha o CRUD.
 - [x] Tela de cadastro de cliente: página `/register` + link no login (e vice-versa),
       usando `POST /api/register`.
-- [ ] Carrinho com quantidade: +/-, agrupar item repetido, remover item.
+- [x] Carrinho com quantidade: agrupa item idêntico (id+opções), botões +/− e remover;
+      subtotal por linha e contador somando quantidades.
 - [ ] Validação de entrada amigável (email/preço/campos) com mensagens claras.
 - [ ] "Meus pedidos" do cliente: `GET /api/orders/me` + página/seção.
 

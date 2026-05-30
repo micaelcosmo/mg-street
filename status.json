@@ -1,13 +1,13 @@
 {
   "feito": [
-    "Dados do Docker movidos para D: (C: liberou ~8GB)",
-    "Dark mode (preto + roxo)",
-    "Landing pública + variações de produto",
-    "Editar produto — CRUD completo",
-    "Cadastro de cliente (UI + link no login)"
+    "Docker movido para D: (C: liberou ~8GB)",
+    "Dark mode + landing pública + variações de produto",
+    "Editar produto (CRUD completo)",
+    "Cadastro de cliente (UI)",
+    "Carrinho com quantidade (+/-, agrupar, remover)"
   ],
-  "fazendo": "Fase A — quantidade no carrinho (+/-, agrupar item repetido, remover)",
-  "proximo": "Validação de entrada amigável; 'Meus pedidos' do cliente",
+  "fazendo": "Fase A — validação de entrada amigável (email/preço/campos)",
+  "proximo": "'Meus pedidos' do cliente; depois Fase B (sem itens pagos)",
   "custo": {
     "faixa": "Estimativa manual: médio",
     "nota": "O app não acessa o faturamento real da Claude — valor exato no painel de billing da Anthropic. Este box é atualizado à mão."

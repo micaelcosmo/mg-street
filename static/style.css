@@ -299,6 +299,29 @@ form {
     color: var(--ink);
 }
 
+.cart-qty {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.qty-btn {
+    padding: 2px 9px;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    background: var(--surface-alt);
+    color: var(--ink);
+    cursor: pointer;
+}
+
+.qty-btn.remove {
+    border: none;
+    background: none;
+    color: var(--danger);
+    font-size: 0.8rem;
+}
+
 
 .modal {
     position: fixed;

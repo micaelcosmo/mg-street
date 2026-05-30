@@ -258,9 +258,16 @@
             }
 
             const cart = JSON.parse(sessionStorage.getItem('mg_cart') || '[]');
-            const item = { id, name: name, price: price, quantity: 1, options: selected };
-
-            cart.push(item);
+            // Agrupa item idêntico (mesmo id + mesmas opções), somando quantidade.
+            const key = id + '|' + JSON.stringify(selected);
+            const existing = cart.find(function (it) {
+                return (it.id + '|' + JSON.stringify(it.options || {})) === key;
+            });
+            if (existing) {
+                existing.quantity = (existing.quantity || 1) + 1;
+            } else {
+                cart.push({ id, name: name, price: price, quantity: 1, options: selected });
+            }
             sessionStorage.setItem('mg_cart', JSON.stringify(cart));
             showToast('Item adicionado ao carrinho');
             updateCartUI();
@@ -275,29 +282,52 @@
 
         function updateCartUI() {
             const cart = JSON.parse(sessionStorage.getItem('mg_cart') || '[]');
-            cartCount.textContent = cart.length;
             cartItemsEl.innerHTML = '';
             let total = 0;
+            let count = 0;
 
-            cart.forEach((item) => {
-                const row = document.createElement('div');
-                row.className = 'cart-item';
+            cart.forEach((item, index) => {
+                const qty = parseInt(item.quantity || 1, 10);
+                count += qty;
                 const opts = item.options || {};
                 const optsText = Object.keys(opts).map(function (k) { return `${k}: ${opts[k]}`; }).join(' · ');
+                const row = document.createElement('div');
+                row.className = 'cart-item';
                 row.innerHTML = `
                     <div>
                         <strong>${item.name}</strong>
                         ${optsText ? `<div class="muted">${optsText}</div>` : ''}
-                        <div class="muted">Qtd. ${item.quantity || 1}</div>
+                        <div class="cart-qty">
+                            <button class="qty-btn" data-act="dec" data-index="${index}" aria-label="Diminuir">−</button>
+                            <span>${qty}</span>
+                            <button class="qty-btn" data-act="inc" data-index="${index}" aria-label="Aumentar">+</button>
+                            <button class="qty-btn remove" data-act="rm" data-index="${index}">remover</button>
+                        </div>
                     </div>
-                    <div>R$ ${item.price != null ? Number(item.price).toFixed(2) : '0.00'}</div>
+                    <div>R$ ${item.price != null ? (Number(item.price) * qty).toFixed(2) : '0.00'}</div>
                 `;
                 cartItemsEl.appendChild(row);
-                total += parseFloat(item.price || 0) * parseInt(item.quantity || 1, 10);
+                total += parseFloat(item.price || 0) * qty;
             });
 
+            cartCount.textContent = count;
             cartTotalEl.textContent = total.toFixed(2);
         }
+
+        // Controles de quantidade/remover no painel do carrinho.
+        cartItemsEl.addEventListener('click', function (e) {
+            const btn = e.target.closest('.qty-btn');
+            if (!btn) return;
+            const index = parseInt(btn.getAttribute('data-index'), 10);
+            const act = btn.getAttribute('data-act');
+            const cart = JSON.parse(sessionStorage.getItem('mg_cart') || '[]');
+            if (!cart[index]) return;
+            if (act === 'inc') cart[index].quantity = (cart[index].quantity || 1) + 1;
+            else if (act === 'dec') cart[index].quantity = Math.max(1, (cart[index].quantity || 1) - 1);
+            else if (act === 'rm') cart.splice(index, 1);
+            sessionStorage.setItem('mg_cart', JSON.stringify(cart));
+            updateCartUI();
+        });
 
         cartButton.addEventListener('click', function () {
             cartPanel.setAttribute('aria-hidden', 'false');
