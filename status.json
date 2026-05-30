@@ -1,9 +1,8 @@
 {
   "feito": [
-    "Pagamento (Mercado Pago, sandbox)",
-    "E-mails transacionais (boas-vindas/confirmação)",
-    "Backlog construível CONCLUÍDO"
+    "Backlog construível concluído (0.8.0)",
+    "Pagamento Mercado Pago VALIDADO no sandbox (init_point gerado)"
   ],
-  "fazendo": "Backlog construível concluído — milestone 0.8.0",
-  "proximo": "Só restam itens de ops/sua ação: validar pagamento no sandbox (token de teste), HTTPS+segredos, CI (escopo workflow)"
+  "fazendo": "Pagamento funcionando em sandbox (localhost)",
+  "proximo": "Você: testar uma compra no /shop com Pix/cartão de teste. Prod: HTTPS p/ auto_return+webhook"
 }

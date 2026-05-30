@@ -47,9 +47,11 @@ def create_preference(order_id, items, base_url):
             "failure": f"{base_url}/shop?payment=failure",
             "pending": f"{base_url}/shop?payment=pending",
         },
-        "auto_return": "approved",
-        "notification_url": f"{base_url}/api/payments/webhook",
     }
+    # auto_return e webhook só com URL pública (https). Em localhost o MP rejeita auto_return.
+    if base_url.startswith("https://"):
+        preference["auto_return"] = "approved"
+        preference["notification_url"] = f"{base_url}/api/payments/webhook"
     response = sdk.preference().create(preference).get("response", {})
     return {
         "init_point": response.get("init_point"),
