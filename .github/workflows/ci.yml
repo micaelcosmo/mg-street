@@ -1,14 +1,16 @@
-name: CI
+  name: CI
 
   on:
     push:
-      branches: [ main ]
+      branches: [main]
     pull_request:
 
   jobs:
     test:
       runs-on: ubuntu-latest
-
+      strategy:
+        matrix:
+          python-version: ["3.11", "3.14"]
       services:
         postgres:
           image: postgres:18-alpine
@@ -17,11 +19,8 @@ name: CI
             POSTGRES_PASSWORD: mgstreet_pass
             POSTGRES_DB: mgstreet_db
           ports:
-            - 5432:5432
-          options: >-
-            --health-cmd "pg_isready -U mgstreet_user -d mgstreet_db"
-            --health-interval 5s --health-timeout 5s --health-retries 10
-
+            - "5432:5432"
+          options: --health-cmd "pg_isready -U mgstreet_user -d mgstreet_db" --health-interval 5s --health-timeout 5s --health-retries 10
       env:
         MGSTREET_DB_TESTS: "1"
         POSTGRES_HOST: localhost
@@ -31,13 +30,10 @@ name: CI
         POSTGRES_DB: mgstreet_db
         JWT_SECRET: ci_test_secret_key_long_enough_0001
         PASSWORD_SALT: ci_salt
-
       steps:
         - uses: actions/checkout@v4
         - uses: actions/setup-python@v5
           with:
-            python-version: '3.11'
-        - name: Instalar dependências
-          run: pip install --no-cache-dir -r requirements.txt
-        - name: Rodar testes (mockados + E2E contra o Postgres do serviço)
-          run: pytest -q
+            python-version: ${{ matrix.python-version }}
+        - run: pip install --no-cache-dir -r requirements.txt
+        - run: pytest -q
