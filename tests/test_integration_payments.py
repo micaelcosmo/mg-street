@@ -29,7 +29,8 @@ def test_checkout_returns_init_point_when_enabled(client, application, set_curso
         headers=_headers(application),
     )
     assert resp.status_code == 201
-    assert resp.get_json()["init_point"] == "http://mp/checkout"
+    # Em dev (FLASK_ENV != production), redireciona para o sandbox_init_point.
+    assert resp.get_json()["init_point"] == "http://mp/sb"
 
 
 def test_checkout_fallback_when_disabled(client, application, set_cursor, monkeypatch):

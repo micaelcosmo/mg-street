@@ -707,10 +707,16 @@ def create_app():
                 app.logger.error('Falha ao criar preferência de pagamento: %s', exc)
                 pref = None
             if pref and pref.get('init_point'):
+                # Em dev/sandbox, redireciona para o sandbox_init_point (onde usuários e
+                # cartões de teste funcionam); em produção, para o init_point real.
+                is_prod = os.getenv('FLASK_ENV') == 'production'
+                checkout_url = pref['init_point']
+                if not is_prod and pref.get('sandbox_init_point'):
+                    checkout_url = pref['sandbox_init_point']
                 return jsonify({
                     'message': 'Pedido criado. Redirecionando para o pagamento.',
                     'order_id': order_id,
-                    'init_point': pref['init_point'],
+                    'init_point': checkout_url,
                     'sandbox_init_point': pref.get('sandbox_init_point'),
                 }), 201
 
