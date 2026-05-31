@@ -96,6 +96,29 @@ def test_customer_purchase_journey(live_app, live_client):
         stats = live_client.get("/api/orders/stats", headers=admin_auth)
         assert stats.status_code == 200
         assert stats.get_json()["total_orders"] >= 1
+
+        # 6. estoque deu baixa (2 unidades) no checkout
+        if produto.get("stock") is not None:
+            recat = live_client.get("/api/products", headers=auth)
+            atual = next((p for p in recat.get_json()["products"] if p["id"] == produto["id"]), None)
+            assert atual is not None
+            assert atual["stock"] == produto["stock"] - 2
+
+        # 7. "meus pedidos" lista o pedido do comprador
+        meus = live_client.get("/api/orders/me", headers=auth)
+        assert meus.status_code == 200
+        assert any(o["id"] == order_id for o in meus.get_json()["orders"])
+
+        # 8. carrinho persiste no servidor (PUT -> GET)
+        salvar = live_client.put(
+            "/api/cart",
+            headers=auth,
+            json={"items": [{"id": produto["id"], "name": produto["name"], "price": produto["price"], "quantity": 1}]},
+        )
+        assert salvar.status_code == 200
+        ler = live_client.get("/api/cart", headers=auth)
+        assert ler.status_code == 200
+        assert len(ler.get_json()["items"]) == 1
     finally:
         # limpeza: remove o pedido (cascade nos itens) e o usuario de teste
         with live_app.db_conn.cursor() as cursor:
