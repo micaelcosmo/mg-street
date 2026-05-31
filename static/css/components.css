@@ -405,13 +405,77 @@
     box-shadow: 8px 8px 0 var(--border);
 }
 
-.product-img img {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
+.product-img {
+    aspect-ratio: 4 / 5;
     border-radius: 12px;
     border: 2px solid var(--border);
     background: var(--product-placeholder);
+    overflow: hidden;
+}
+
+.product-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Imagem ausente/quebrada: esconde o <img> e deixa o placeholder do container. */
+.product-img img.product-img--broken {
+    display: none;
+}
+
+/* Skeleton de carregamento (catálogo). */
+.skeleton {
+    position: relative;
+    overflow: hidden;
+    background: var(--surface-alt);
+    border-radius: 8px;
+}
+
+.skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, var(--shimmer), transparent);
+    animation: skeleton-shimmer 1.2s infinite;
+}
+
+.product-card--skeleton {
+    pointer-events: none;
+}
+
+.product-card__media {
+    aspect-ratio: 4 / 5;
+}
+
+.skeleton--line {
+    height: 14px;
+    margin-top: 8px;
+}
+
+.skeleton--short {
+    width: 60%;
+}
+
+@keyframes skeleton-shimmer {
+    to {
+        transform: translateX(100%);
+    }
+}
+
+/* Rodapé do site */
+.site-footer {
+    border-top: 4px solid var(--border);
+    background: var(--surface);
+    padding: 24px 16px;
+    margin-top: 32px;
+    text-align: center;
+    color: var(--muted);
+}
+
+.site-footer strong {
+    color: var(--ink);
 }
 
 .product-body h4 {
@@ -597,11 +661,30 @@
     background: var(--surface);
     border: 3px solid var(--border);
     box-shadow: var(--shadow);
+    margin-top: 12px;
 }
 
 .user-preview strong {
     display: block;
     margin-bottom: 6px;
+}
+
+.user-preview__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+    gap: 12px;
+}
+
+.user-preview__email {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.user-preview__actions {
+    display: flex;
+    gap: 8px;
 }
 
 .user-preview #preview-user-name {
@@ -616,14 +699,57 @@
 .sales-dashboard {
     padding: 16px;
     background: var(--surface);
+    margin-bottom: 14px;
 }
 
 .sales-dashboard h3 {
-    margin: 0;
+    margin: 0 0 6px;
 }
 
 .sales-dashboard .btn {
     white-space: nowrap;
+}
+
+.dashboard-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.dashboard-sub {
+    color: var(--muted);
+}
+
+.dashboard-stats {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.stat {
+    text-align: right;
+}
+
+.stat__value {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.stat__label {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.dashboard-orders {
+    margin-top: 12px;
+}
+
+.form-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
 }
 
 /* Media queries de componentes */

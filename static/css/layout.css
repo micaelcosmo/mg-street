@@ -94,6 +94,24 @@
 /* Admin */
 .admin-page {
     background: var(--page-bg);
+    padding-top: 64px;
+}
+
+/* Link de pular para o conteúdo (a11y): escondido até receber foco. */
+.skip-link {
+    position: absolute;
+    left: 8px;
+    top: -48px;
+    z-index: 2000;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: var(--brand-purple);
+    color: var(--ink-on-brand);
+    transition: top var(--dur-base) var(--ease-out);
+}
+
+.skip-link:focus {
+    top: 8px;
 }
 
 .admin-header {

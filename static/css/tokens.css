@@ -34,6 +34,7 @@
     --border-light: rgba(17, 17, 17, 0.08);
     --overlay: rgba(17, 17, 17, 0.5);
     --toast-bg: rgba(17, 17, 17, 0.95);
+    --shimmer: rgba(255, 255, 255, 0.06);  /* brilho do skeleton de carregamento */
     --social-google: #db4437;
     --social-facebook: #4267b2;
     --social-instagram: #e1306c;

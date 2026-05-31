@@ -9,9 +9,9 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&display=swap">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <meta name="robots" content="noindex">
-    <style> body { padding-top: 64px; } </style>
 </head>
 <body class="admin-page">
+    <a class="skip-link" href="#admin-content">Pular para o conteúdo</a>
     <header class="admin-header">
         <div class="admin-header-inner">
             <div class="brand">
@@ -25,26 +25,26 @@
         </div>
     </header>
 
-    <main class="admin-main">
-        <section class="sales-dashboard card" style="margin-bottom:14px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+    <main class="admin-main" id="admin-content">
+        <section class="sales-dashboard card">
+            <div class="dashboard-head">
                 <div>
-                    <h3 style="margin:0 0 6px 0;">Visão de Vendas</h3>
-                    <div style="color:var(--muted);">Resumo rápido das vendas</div>
+                    <h3>Visão de Vendas</h3>
+                    <div class="dashboard-sub">Resumo rápido das vendas</div>
                 </div>
-                <div style="display:flex;gap:12px;align-items:center;">
-                    <div style="text-align:right">
-                        <div style="font-weight:700;font-size:1.1rem" id="stat-total-revenue">R$ 0.00</div>
-                        <div style="color:var(--muted);font-size:0.9rem">Total de receita</div>
+                <div class="dashboard-stats">
+                    <div class="stat">
+                        <div class="stat__value" id="stat-total-revenue">R$ 0.00</div>
+                        <div class="stat__label">Total de receita</div>
                     </div>
-                    <div style="text-align:right">
-                        <div style="font-weight:700;font-size:1.1rem" id="stat-total-orders">0</div>
-                        <div style="color:var(--muted);font-size:0.9rem">Pedidos</div>
+                    <div class="stat">
+                        <div class="stat__value" id="stat-total-orders">0</div>
+                        <div class="stat__label">Pedidos</div>
                     </div>
                     <button id="refresh-orders" class="btn btn-ghost">Atualizar</button>
                 </div>
             </div>
-            <div style="margin-top:12px;">
+            <div class="dashboard-orders table-responsive">
                 <table class="products-table" id="orders-table">
                     <thead>
                         <tr><th>ID</th><th>Usuário</th><th>Itens</th><th>Total</th><th>Status</th><th>Criado em</th></tr>
@@ -53,10 +53,12 @@
                 </table>
             </div>
         </section>
+
         <section class="products-table-wrap card">
             <div class="table-toolbar">
                 <div class="search-wrap">
-                    <input id="search-products" type="search" aria-label="Pesquisar produtos por nome" placeholder="Pesquisar por nome..." />
+                    <label class="visually-hidden" for="search-products">Pesquisar produtos por nome</label>
+                    <input id="search-products" type="search" placeholder="Pesquisar por nome..." />
                 </div>
                 <div class="table-actions">Total de produtos: <span id="products-count">0</span></div>
             </div>
@@ -79,14 +81,15 @@
                 </table>
                 <div class="empty-state" id="empty-state">Nenhum produto encontrado. Clique em "Novo Produto" para adicionar.</div>
             </div>
-            <div class="user-preview card" style="margin-top:12px;">
+
+            <div class="user-preview card">
                 <strong>Preview de Usuário</strong>
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:12px;">
+                <div class="user-preview__row">
                     <div>
                         <div id="preview-user-name">Cliente Demo</div>
-                        <div id="preview-user-email" style="color:var(--muted);font-size:0.9rem;">cliente@mgstreet.com</div>
+                        <div id="preview-user-email" class="user-preview__email">cliente@mgstreet.com</div>
                     </div>
-                    <div style="display:flex;gap:8px;">
+                    <div class="user-preview__actions">
                         <button id="preview-open-loja" class="btn">Preview na Loja</button>
                     </div>
                 </div>
@@ -99,23 +102,23 @@
         <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title">
             <h3 id="modal-title">Novo Produto</h3>
             <form id="product-form">
-                <label>Nome</label>
-                <input type="text" name="name" required />
-                <label>Descrição</label>
-                <input type="text" name="description" />
-                <label>Preço</label>
-                <input type="number" name="price" step="0.01" required />
-                <label>Estoque</label>
-                <input type="number" name="stock" min="0" step="1" value="10" />
-                <label>Imagem URL</label>
-                <input type="text" name="image_url" />
-                <label>…ou envie um arquivo</label>
+                <label for="p-name">Nome</label>
+                <input id="p-name" type="text" name="name" required />
+                <label for="p-description">Descrição</label>
+                <input id="p-description" type="text" name="description" />
+                <label for="p-price">Preço</label>
+                <input id="p-price" type="number" name="price" step="0.01" required />
+                <label for="p-stock">Estoque</label>
+                <input id="p-stock" type="number" name="stock" min="0" step="1" value="10" />
+                <label for="p-image-url">Imagem URL</label>
+                <input id="p-image-url" type="text" name="image_url" />
+                <label for="image-file">…ou envie um arquivo</label>
                 <input type="file" id="image-file" accept="image/*" />
-                <label>Categoria</label>
-                <input type="text" name="category" placeholder="ex: camisetas" />
-                <label>Opções (uma por linha — ex.: Cor: Preto, Roxo)</label>
-                <textarea name="options" rows="3" placeholder="Cor: Preto, Roxo&#10;Tamanho: P, M, G"></textarea>
-                <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end;">
+                <label for="p-category">Categoria</label>
+                <input id="p-category" type="text" name="category" placeholder="ex: camisetas" />
+                <label for="p-options">Opções (uma por linha — ex.: Cor: Preto, Roxo)</label>
+                <textarea id="p-options" name="options" rows="3" placeholder="Cor: Preto, Roxo&#10;Tamanho: P, M, G"></textarea>
+                <div class="form-actions">
                     <button type="button" id="cancel-product" class="btn btn-ghost">Cancelar</button>
                     <button type="submit" class="btn">Salvar</button>
                 </div>
@@ -123,227 +126,9 @@
         </div>
     </div>
 
-    <script>
-        // Check auth
-        (function checkAuth() {
-            const token = localStorage.getItem('mgstreet_token');
-            if (!token) { window.location.href = '/login'; }
-        })();
-
-        document.getElementById('logout-btn').addEventListener('click', function () {
-            localStorage.removeItem('mgstreet_token');
-            window.location.href = '/';
-        });
-
-        const tbody = document.querySelector('.products-table tbody');
-        const emptyState = document.getElementById('empty-state');
-        const productsCount = document.getElementById('products-count');
-        let currentProducts = [];
-
-        async function fetchAndRenderProducts(q) {
-            const token = localStorage.getItem('mgstreet_token');
-            tbody.innerHTML = '';
-            emptyState.style.display = 'none';
-            try {
-                const url = '/api/products' + (q ? ('?q=' + encodeURIComponent(q)) : '');
-                const resp = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
-                if (!resp.ok) { throw new Error('Falha ao buscar produtos'); }
-                const data = await resp.json();
-                const products = data.products || [];
-                currentProducts = products;
-                productsCount.textContent = products.length;
-                if (products.length === 0) {
-                    emptyState.style.display = 'block';
-                    return;
-                }
-                products.forEach(product => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${product.id}</td>
-                        <td>${product.name}</td>
-                        <td>${product.description || ''}</td>
-                        <td>R$ ${product.price != null ? Number(product.price).toFixed(2) : ''}</td>
-                        <td>${product.image_url ? `<img src="${product.image_url}" alt="" class="tbl-img"/>` : ''}</td>
-                        <td>
-                            <button class="btn btn-ghost edit-btn" data-id="${product.id}">Editar</button>
-                            <button class="btn btn-danger" data-id="${product.id}">Deletar</button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            } catch (err) {
-                console.error(err);
-                emptyState.textContent = 'Erro ao carregar produtos.';
-                emptyState.style.display = 'block';
-            }
-        }
-
-        // Modal logic (cria ou edita)
-        const modal = document.getElementById('product-modal');
-        const productForm = document.getElementById('product-form');
-        const cancelBtn = document.getElementById('cancel-product');
-        const modalTitle = document.getElementById('modal-title');
-        let editingId = null;
-
-        // Converte { Cor: ["Preto","Roxo"] } de volta para "Cor: Preto, Roxo" (uma por linha).
-        function optionsToText(options) {
-            return Object.keys(options || {})
-                .map(function (key) { return key + ': ' + (options[key] || []).join(', '); })
-                .join('\n');
-        }
-
-        function openModalForNew() {
-            editingId = null;
-            productForm.reset();
-            modalTitle.textContent = 'Novo Produto';
-            modal.setAttribute('aria-hidden', 'false');
-        }
-
-        function openModalForEdit(product) {
-            editingId = product.id;
-            modalTitle.textContent = 'Editar Produto';
-            productForm.name.value = product.name || '';
-            productForm.description.value = product.description || '';
-            productForm.price.value = product.price != null ? product.price : '';
-            productForm.image_url.value = product.image_url || '';
-            productForm.category.value = product.category || '';
-            productForm.stock.value = product.stock != null ? product.stock : 0;
-            productForm.options.value = optionsToText(product.options);
-            modal.setAttribute('aria-hidden', 'false');
-        }
-
-        function closeModal() {
-            modal.setAttribute('aria-hidden', 'true');
-            productForm.reset();
-            editingId = null;
-        }
-
-        document.getElementById('new-product-btn').addEventListener('click', openModalForNew);
-        cancelBtn.addEventListener('click', closeModal);
-
-        // Upload de imagem: envia o arquivo e preenche o campo "Imagem URL".
-        document.getElementById('image-file').addEventListener('change', async function (e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const fd = new FormData();
-            fd.append('file', file);
-            const token = localStorage.getItem('mgstreet_token');
-            try {
-                const resp = await fetch('/api/upload', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: fd });
-                const data = await resp.json();
-                if (!resp.ok) { alert(data.error || 'Falha no upload.'); return; }
-                productForm.image_url.value = data.url;
-                alert('Imagem enviada!');
-            } catch (err) {
-                alert('Erro de rede no upload.');
-            }
-        });
-
-        // Converte "Cor: Preto, Roxo" (uma por linha) em { Cor: ["Preto","Roxo"] }.
-        function parseOptions(text) {
-            const options = {};
-            (text || '').split('\n').forEach(function (line) {
-                const idx = line.indexOf(':');
-                if (idx === -1) return;
-                const key = line.slice(0, idx).trim();
-                const values = line.slice(idx + 1).split(',').map(function (v) { return v.trim(); }).filter(Boolean);
-                if (key && values.length) options[key] = values;
-            });
-            return options;
-        }
-
-        productForm.addEventListener('submit', async function (e) {
-            e.preventDefault();
-            const form = new FormData(productForm);
-            const payload = { name: form.get('name'), description: form.get('description'), price: parseFloat(form.get('price')), image_url: form.get('image_url'), category: form.get('category'), options: parseOptions(form.get('options')), stock: parseInt(form.get('stock'), 10) || 0 };
-            const token = localStorage.getItem('mgstreet_token');
-            const method = editingId ? 'PUT' : 'POST';
-            const url = editingId ? `/api/products/${editingId}` : '/api/products';
-            try {
-                const resp = await fetch(url, { method: method, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(payload) });
-                if (!resp.ok) { const err = await resp.json().catch(()=>({})); alert(err.error || 'Falha ao salvar produto.'); return; }
-                closeModal(); fetchAndRenderProducts();
-            } catch (err) { alert('Erro de rede ao salvar produto.'); }
-        });
-
-        // Delegação de clique na tabela: editar ou deletar
-        tbody.addEventListener('click', async function (e) {
-            const btn = e.target.closest('button'); if (!btn) return;
-            const id = btn.getAttribute('data-id'); if (!id) return;
-
-            if (btn.classList.contains('edit-btn')) {
-                const product = currentProducts.find(function (p) { return String(p.id) === String(id); });
-                if (product) openModalForEdit(product);
-                return;
-            }
-
-            if (btn.classList.contains('btn-danger')) {
-                if (!confirm('Confirmar remoção do produto?')) return;
-                const token = localStorage.getItem('mgstreet_token');
-                try {
-                    const resp = await fetch(`/api/products/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
-                    if (!resp.ok) { const err = await resp.json().catch(()=>({})); alert(err.error || 'Falha ao deletar produto.'); return; }
-                    fetchAndRenderProducts();
-                } catch (err) { alert('Erro de rede ao deletar produto.'); }
-            }
-        });
-
-        // Busca server-side (debounce) via ?q=
-        let searchTimer = null;
-        document.getElementById('search-products').addEventListener('input', function (e) {
-            clearTimeout(searchTimer);
-            const q = e.target.value.trim();
-            searchTimer = setTimeout(function () { fetchAndRenderProducts(q); }, 300);
-        });
-
-        // Initial load
-        fetchAndRenderProducts();
-
-        // Preview como usuário comprador
-        document.getElementById('preview-open-loja').addEventListener('click', async function () {
-            const token = localStorage.getItem('mgstreet_token');
-            if (!token) { alert('Você precisa estar logado como admin para gerar o preview.'); return; }
-            try {
-                const resp = await fetch('/api/preview_token', { headers: { 'Authorization': `Bearer ${token}` } });
-                if (!resp.ok) { const err = await resp.json().catch(()=>({})); alert(err.error || 'Falha ao gerar preview.'); return; }
-                const data = await resp.json();
-                // set demo preview token (separate) and open loja in new tab
-                localStorage.setItem('mgstreet_preview_token', data.token);
-                window.open('/shop', '_blank');
-            } catch (err) {
-                alert('Erro ao solicitar token de preview.');
-            }
-        });
-
-        // Orders and stats for sales dashboard
-        async function fetchOrdersAndStats() {
-            const token = localStorage.getItem('mgstreet_token');
-            try {
-                const statsResp = await fetch('/api/orders/stats', { headers: { 'Authorization': `Bearer ${token}` } });
-                if (statsResp.ok) {
-                    const stats = await statsResp.json();
-                    document.getElementById('stat-total-revenue').textContent = 'R$ ' + (Number(stats.total_revenue || 0).toFixed(2));
-                    document.getElementById('stat-total-orders').textContent = (stats.total_orders || 0);
-                }
-                const resp = await fetch('/api/orders', { headers: { 'Authorization': `Bearer ${token}` } });
-                if (!resp.ok) { throw new Error('Falha ao buscar pedidos'); }
-                const data = await resp.json();
-                const ordersTbody = document.querySelector('#orders-table tbody');
-                ordersTbody.innerHTML = '';
-                (data.orders || []).forEach(order => {
-                    const tr = document.createElement('tr');
-                    const itemsText = (order.items || []).map(item => `${item.name} x${item.quantity || 1}`).join(', ');
-                    tr.innerHTML = `<td>${order.id}</td><td>${order.user_id}</td><td>${itemsText}</td><td>R$ ${Number(order.total).toFixed(2)}</td><td>${order.status || 'pending'}</td><td>${order.created_at || ''}</td>`;
-                    ordersTbody.appendChild(tr);
-                });
-            } catch (err) {
-                console.error('Erro ao carregar pedidos/estatísticas', err);
-            }
-        }
-
-        document.getElementById('refresh-orders').addEventListener('click', fetchOrdersAndStats);
-        // initial load for dashboard
-        fetchOrdersAndStats();
-    </script>
+    <script src="{{ url_for('static', filename='toast.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ui.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
 </body>
 </html>

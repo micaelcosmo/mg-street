@@ -153,20 +153,34 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
       `:root`. Templates inalterados. Testes novos (`tests/test_static_css.py`): Flask serve o
       índice + os 5 partials, índice importa cada camada, partials sem cor crua, classes
       preservadas. Suíte: 108 passed.
-- [ ] **Extrair JS dos templates**: mover `<script>` inline para `static/js/` (`api.js`,
-      `ui.js`, `cart.js`, `<page>.js`); wrapper único de `fetch` com tratamento de erro.
-- [ ] **Remover `style=` inline do `admin.html`** e trocar `alert()` por toast/inline.
+- [x] **Extrair JS dos templates** (2026-05-31): todo `<script>` inline saiu para
+      `static/js/` (`api.js` = wrapper de fetch com token + tratamento de erro; `ui.js` =
+      skeleton + foco preso em modal; `landing.js`/`login.js`/`register.js`/`shop.js`/`admin.js`).
+      `shop.js` mantém resolvedor de token próprio (modo preview). Testes em
+      `tests/test_frontend_js.py` (JS servido, sem `<script>` inline, páginas referenciam módulos).
+- [x] **Remover `style=` inline do `admin.html`** e trocar `alert()` por toast/inline
+      (2026-05-31): inline styles viraram classes (`.dashboard-*`, `.stat*`, `.user-preview__*`,
+      `.form-actions`); `<style>` removido (padding no `.admin-page`); `alert()`→`showToast`.
 - [x] **Fonte display (1ª passada visível)** (2026-05-31): fonte **Anton** (Google Fonts) via
       `<link>` nos 5 templates, `--font-display` no `:root`, aplicada aos títulos de marca
       (`.loja-header h1`, `.admin-header .brand h1`, `.login-brand h1`) e ao hero
       (`.loja-hero h2`, com `clamp()` + uppercase) + hero da landing com gradiente, kicker
       "Novo drop" e CTA "Entrar e comprar". Testes em `tests/test_frontend_visual.py`. 116 passed.
-- [ ] **Tipografia & tokens**: aplicar `font-display`/escala modular e os tokens novos
-      (estados, foco, motion) no `:root`; contraste AA.
-- [ ] **Componentes**: redesenhar product card (mídia 4/5 + fallback/skeleton), header/nav,
-      footer (criar), chips de filtro, painel de carrinho, KPIs do admin.
-- [ ] **Estados**: loading (skeleton), vazio e erro em catálogo/carrinho/pedidos.
-- [ ] **Mídia real**: hero + fotos de produto (placeholder enquanto não houver; storage
-      externo para uploads, já que o disco do Render é efêmero).
-- [ ] **Responsividade**: revisão mobile-first das telas (header, grid, carrinho, admin).
-- [ ] **Acessibilidade (2ª passada)**: foco/teclado em modais, labels do form admin, contraste.
+- [x] **Tipografia & tokens** (2026-05-31): fonte display nos títulos/hero; tokens novos
+      (`--success`/`--warning`/`--focus-ring`, escala `--space-*`/`--fs-*`, raio, motion) no
+      `:root`; foco visível (`:focus-visible`) e `prefers-reduced-motion` aplicados; `body`
+      usa `--font-body`. (Aplicar a escala modular a TODOS os componentes fica para o refino contínuo.)
+- [x] **Componentes** (2026-05-31): product card com mídia **4/5** + fallback de imagem +
+      skeleton; **footer** criado (`.site-footer`); KPIs do admin viraram componente
+      (`.stat`/`.dashboard-*`); chips/carrinho mantidos. (Refino visual mais profundo segue por demanda.)
+- [x] **Estados** (2026-05-31): loading com **skeleton** (catálogo/landing), **vazio**
+      (catálogo, carrinho, "meus pedidos") e **erro** (toast/inline) cobertos.
+- [ ] **Mídia real**: lado de código pronto (fallback/placeholder, `loading="lazy"`,
+      `aspect-ratio`); faltam **fotos reais** (seus assets) e **storage externo** (R2/S3) para
+      uploads sobreviverem ao redeploy do Render — ação sua (infra/conteúdo).
+- [ ] **Responsividade (mobile-first)**: o site é responsivo (header/grid/tabela→cards/
+      carrinho), mas a **inversão para mobile-first** das media queries foi adiada para fazer
+      com revisão visual (evita regressão às cegas no site no ar).
+- [x] **Acessibilidade (2ª passada)** (2026-05-31): `:focus-visible` global, **skip-link**
+      nas páginas, labels do form admin associadas (`for`/`id`), foco **preso** no modal
+      (`trapFocus`) com fechar no Esc. (Auditoria formal de contraste AA fica como follow-up.)

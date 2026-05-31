@@ -11,6 +11,7 @@
     <meta name="robots" content="noindex">
 </head>
 <body class="loja-page">
+    <a class="skip-link" href="#catalog">Pular para o catálogo</a>
     <header class="loja-header">
         <div class="loja-header-inner">
             <div>
@@ -40,50 +41,13 @@
         <section id="catalog" class="products-grid" aria-live="polite"></section>
     </main>
 
+    <footer class="site-footer">
+        <p><strong>MG Street</strong> — streetwear, vista a sua rua.</p>
+        <p class="muted">© MG Street. Todos os direitos reservados.</p>
+    </footer>
+
     <script src="{{ url_for('static', filename='toast.js') }}"></script>
-    <script>
-        const catalog = document.getElementById('catalog');
-        const productCount = document.getElementById('product-count');
-
-        function createCard(product) {
-            const card = document.createElement('article');
-            card.className = 'product-card';
-            card.innerHTML = `
-                <div class="product-img">
-                    <img src="${product.image_url || ''}" alt="${product.name}"/>
-                </div>
-                <div class="product-body">
-                    ${product.category ? `<span class="product-tag">${product.category}</span>` : ''}
-                    <h4>${product.name}</h4>
-                    <p class="muted">${product.description || ''}</p>
-                    <div class="product-footer">
-                        <strong>R$ ${product.price != null ? Number(product.price).toFixed(2) : '0.00'}</strong>
-                        <a class="btn" href="/login">Entrar para comprar</a>
-                    </div>
-                </div>
-            `;
-            return card;
-        }
-
-        async function loadPublicProducts() {
-            try {
-                const resp = await fetch('/api/public/products');
-                if (!resp.ok) {
-                    showToast('Não foi possível carregar os produtos.');
-                    return;
-                }
-                const data = await resp.json();
-                const products = data.products || [];
-                productCount.textContent = products.length;
-                catalog.innerHTML = '';
-                products.forEach((product) => catalog.appendChild(createCard(product)));
-            } catch (err) {
-                console.error('Erro ao carregar produtos', err);
-                showToast('Erro ao carregar os produtos.');
-            }
-        }
-
-        loadPublicProducts();
-    </script>
+    <script src="{{ url_for('static', filename='js/ui.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/landing.js') }}"></script>
 </body>
 </html>
