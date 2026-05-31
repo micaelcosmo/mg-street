@@ -124,4 +124,8 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
 - [x] **CI no GitHub**: `ci.yml` habilitado (matrix 3.11/3.14, pytest + E2E com Postgres).
       Corrigido o `ModuleNotFoundError: app` do `pytest` puro via `pyproject.toml`
       (`pythonpath = ["."]`). Roda verde a cada push/PR.
+- [x] **Deploy 24/7 no Render (preparado)**: `render.yaml` (web Docker, gunicorn ligado ao
+      `$PORT`, healthcheck `/ping`) + banco Postgres externo durável (Neon/Supabase) com
+      `POSTGRES_SSLMODE`. Seção no `DEPLOY.md`. Falta a ação de ops: criar conta/banco e
+      preencher os segredos no painel (não versionados).
 - [ ] **Cobrar de verdade**: trocar `MP_ACCESS_TOKEN` de teste pelo de produção (→ 1.0).

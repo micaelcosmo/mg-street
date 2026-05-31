@@ -151,6 +151,13 @@ def init_db_connection(app):
         "port": int(os.getenv("POSTGRES_PORT", 5432)),
     }
 
+    # Bancos gerenciados (Neon/Supabase/Render etc.) exigem SSL; habilita via env
+    # quando definido (ex.: POSTGRES_SSLMODE=require). Sem a variável, mantém o
+    # comportamento local (sem SSL).
+    sslmode = os.getenv("POSTGRES_SSLMODE")
+    if sslmode:
+        base_config["sslmode"] = sslmode
+
     configured_host = app.config["POSTGRES_HOST"]
     host_candidates = []
     for host in (configured_host, "localhost", "127.0.0.1", "db"):

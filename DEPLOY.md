@@ -1,4 +1,50 @@
-# Deploy — MG Street (HTTPS grátis via Cloudflare Tunnel)
+# Deploy — MG Street
+
+Dois caminhos de deploy, ambos com HTTPS:
+
+- **Render.com** (recomendado p/ deixar no ar 24/7, URL fixa, **independe do seu PC**) — ver
+  abaixo. Faz deploy automático a cada `git push`.
+- **Cloudflare Tunnel** (demo rápida a partir da sua máquina) — seção mais abaixo.
+
+---
+
+# Deploy A — Render.com (PaaS, 24/7)
+
+Sobe o `Dockerfile` + `gunicorn` no Render. Banco Postgres **externo gratuito e durável**
+(Neon ou Supabase). O blueprint está em [`render.yaml`](render.yaml).
+
+## 1. Crie o banco (Neon ou Supabase, grátis)
+- **Neon** (https://neon.tech) ou **Supabase** (https://supabase.com) → crie um projeto
+  Postgres. Anote da connection string: **host, porta (5432), database, usuário, senha**.
+- Ambos exigem **SSL** (o app usa `POSTGRES_SSLMODE=require`, já no blueprint).
+
+## 2. Suba o serviço no Render
+- https://dashboard.render.com → **New → Blueprint** → conecte este repositório.
+- O Render lê o `render.yaml` e cria o web service `mg-street` (plano free, Docker).
+
+## 3. Preencha as variáveis (painel do Render → Environment)
+Os campos `sync: false` do blueprint pedem valor:
+- **Banco**: `POSTGRES_HOST`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` (do passo 1).
+- **Salt**: `PASSWORD_SALT` — gere **um** valor e **não mude depois**:
+  `python -c "import secrets; print(secrets.token_urlsafe(24))"`.
+- **Seed**: `ADMIN_EMAIL`/`ADMIN_PASSWORD`, `DEMO_EMAIL`/`DEMO_PASSWORD` (senhas fortes).
+- **Pagamento** (opcional): `MP_ACCESS_TOKEN` (sandbox para validar; produção p/ cobrar).
+- `SECRET_KEY` e `JWT_SECRET` o Render **gera sozinho** (fortes).
+
+## 4. Defina a URL pública e valide
+- Após o 1º deploy, copie a URL (ex.: `https://mg-street.onrender.com`), ponha em
+  `PUBLIC_BASE_URL` e salve (redeploy automático). Isso liga `auto_return` + webhook do MP.
+- `https://<sua-url>/ping` → `{"status":"ok"}`. Abra `/` e teste o fluxo.
+
+## Limitações do plano grátis (saiba antes)
+- **Dorme após ~15 min** sem tráfego → 1ª visita seguinte acorda em ~30–60s.
+- **Disco efêmero**: imagens enviadas pelo admin (`static/uploads/`) somem a cada redeploy
+  — para valer, usar storage externo (Cloudflare R2/S3) ou disco pago.
+- Instância + Postgres pagos (~US$7/mês cada) removem o "dormir" e dão disco persistente.
+
+---
+
+# Deploy B — Cloudflare Tunnel (HTTPS grátis a partir da sua máquina)
 
 Coloca a loja no ar com **HTTPS público gratuito**, reusando o stack Docker. Com https, o
 `auto_return` e o **webhook** do Mercado Pago passam a funcionar (valida o pagamento de

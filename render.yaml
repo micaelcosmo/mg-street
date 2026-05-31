@@ -1,0 +1,66 @@
+# render.yaml — Blueprint do MG Street (web em Docker; banco Postgres externo).
+#
+# Deploy: https://dashboard.render.com → New → Blueprint → conecte este repositório.
+# O Render lê este arquivo e cria o serviço web. Os valores marcados `sync: false`
+# NÃO ficam no repositório — você os preenche no painel do Render (Environment).
+# `generateValue: true` faz o Render gerar um valor aleatório forte e estável.
+#
+# Banco: use um Postgres gerenciado gratuito e durável (Neon ou Supabase). Pegue host,
+# porta, database, usuário e senha na connection string do provedor e preencha abaixo.
+# Eles exigem SSL — por isso POSTGRES_SSLMODE=require.
+services:
+  - type: web
+    name: mg-street
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    # Produção: gunicorn ligado à porta dinâmica que o Render injeta ($PORT).
+    dockerCommand: gunicorn -b 0.0.0.0:$PORT -w 2 wsgi:app
+    healthCheckPath: /ping
+    autoDeploy: true
+    envVars:
+      - key: FLASK_ENV
+        value: production
+
+      # --- Banco externo (Neon/Supabase) — preencha pela connection string ---
+      - key: POSTGRES_HOST
+        sync: false
+      - key: POSTGRES_PORT
+        value: "5432"
+      - key: POSTGRES_DB
+        sync: false
+      - key: POSTGRES_USER
+        sync: false
+      - key: POSTGRES_PASSWORD
+        sync: false
+      - key: POSTGRES_SSLMODE
+        value: require
+
+      # --- Segredos da aplicação (não reutilize os de dev) ---
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET
+        generateValue: true
+      # Salt fixo: defina UM valor e não mude (alterar invalida as senhas já gravadas).
+      # Gere com: python -c "import secrets; print(secrets.token_urlsafe(24))"
+      - key: PASSWORD_SALT
+        sync: false
+
+      # --- Seed inicial (admin + cliente demo) ---
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: DEMO_EMAIL
+        sync: false
+      - key: DEMO_PASSWORD
+        sync: false
+
+      # --- Pagamento (opcional): token de teste (sandbox) ou de produção do Mercado Pago ---
+      - key: MP_ACCESS_TOKEN
+        sync: false
+
+      # --- URL pública: após o 1º deploy, defina com a URL do Render ---
+      # (ex.: https://mg-street.onrender.com) para ligar auto_return + webhook do MP.
+      - key: PUBLIC_BASE_URL
+        sync: false
