@@ -1,0 +1,20 @@
+/* @layer utilities — helpers pontuais (vencem componentes por estarem na camada mais alta).
+   Importado em layer(utilities) por style.css. */
+.muted {
+    color: var(--muted);
+    font-size: 0.95rem;
+}
+
+/* Esconde visualmente, mantendo o conteúdo para leitores de tela (a11y). */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+}

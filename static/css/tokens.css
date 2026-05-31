@@ -1,0 +1,81 @@
+/* @layer tokens — variáveis de design (contrato). Importado em layer(tokens) por style.css.
+   Ver spec/frontend/01-styling.md. Os tokens que capturam literais usam EXATAMENTE o valor
+   que substituem (zero mudança visual). */
+:root {
+    /* Base dark — preto + roxo (feedback do cliente) */
+    --bg: #0f0b16;
+    --surface: #181222;
+    --surface-alt: #221a30;
+    --ink: #f2ecfb;
+    --muted: #a89bc2;
+    --border: #4c3a73;
+
+    /* Marca — vindas da logo */
+    --brand-purple: #8b5cf6;
+    --brand-cyan: #22d3ee;
+    --brand-accent: #e8c547;
+
+    /* Estados */
+    --danger: #f0616d;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --focus-ring: #22d3ee;
+
+    /* Sombras (já em uso) */
+    --shadow: 6px 6px 0 rgba(139, 92, 246, 0.30);
+    --shadow-soft: 0 10px 28px rgba(0, 0, 0, 0.55);
+
+    /* Tokens que capturam literais antes espalhados (mesmos valores) */
+    --ink-on-brand: #fff;          /* texto/borda sobre superfícies coloridas (era #fff/white) */
+    --purple-hover: #5c3bc3;       /* hover de .btn / .buy-btn */
+    --cyan-hover: #14a2b4;         /* hover de .cart-button */
+    --page-bg: linear-gradient(180deg, #140f1e 0%, #0d0a13 100%);
+    --product-placeholder: linear-gradient(90deg, #241b30, #181222);
+    --border-light: rgba(17, 17, 17, 0.08);
+    --overlay: rgba(17, 17, 17, 0.5);
+    --toast-bg: rgba(17, 17, 17, 0.95);
+    --social-google: #db4437;
+    --social-facebook: #4267b2;
+    --social-instagram: #e1306c;
+
+    /* --- Contrato de 01-styling: definido para uso futuro (ainda não religado às regras;
+       isso é a tarefa de tipografia/tokens). Definir variável não altera o render. --- */
+
+    /* Tipografia */
+    --font-body: Arial, sans-serif;
+    --font-display: var(--font-body);
+    --fs-300: 0.875rem;
+    --fs-400: 1rem;
+    --fs-500: 1.25rem;
+    --fs-600: 1.5rem;
+    --fs-700: 2rem;
+    --fs-900: 3rem;
+    --fw-regular: 400;
+    --fw-bold: 700;
+    --fw-black: 900;
+    --lh-tight: 1.1;
+    --lh-base: 1.5;
+
+    /* Espaçamento (base 4px) e container */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.5rem;
+    --space-6: 2rem;
+    --space-8: 3rem;
+    --space-12: 4.5rem;
+    --container-max: 1200px;
+
+    /* Raio */
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 22px;
+    --radius-pill: 999px;
+
+    /* Motion */
+    --dur-fast: 120ms;
+    --dur-base: 200ms;
+    --dur-slow: 360ms;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
