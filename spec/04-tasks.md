@@ -156,6 +156,11 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
 - [ ] **Extrair JS dos templates**: mover `<script>` inline para `static/js/` (`api.js`,
       `ui.js`, `cart.js`, `<page>.js`); wrapper único de `fetch` com tratamento de erro.
 - [ ] **Remover `style=` inline do `admin.html`** e trocar `alert()` por toast/inline.
+- [x] **Fonte display (1ª passada visível)** (2026-05-31): fonte **Anton** (Google Fonts) via
+      `<link>` nos 5 templates, `--font-display` no `:root`, aplicada aos títulos de marca
+      (`.loja-header h1`, `.admin-header .brand h1`, `.login-brand h1`) e ao hero
+      (`.loja-hero h2`, com `clamp()` + uppercase) + hero da landing com gradiente, kicker
+      "Novo drop" e CTA "Entrar e comprar". Testes em `tests/test_frontend_visual.py`. 116 passed.
 - [ ] **Tipografia & tokens**: aplicar `font-display`/escala modular e os tokens novos
       (estados, foco, motion) no `:root`; contraste AA.
 - [ ] **Componentes**: redesenhar product card (mídia 4/5 + fallback/skeleton), header/nav,

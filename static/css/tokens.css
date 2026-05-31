@@ -43,7 +43,7 @@
 
     /* Tipografia */
     --font-body: Arial, sans-serif;
-    --font-display: var(--font-body);
+    --font-display: "Anton", var(--font-body);  /* títulos de marca/hero (vibe hype/street) */
     --fs-300: 0.875rem;
     --fs-400: 1rem;
     --fs-500: 1.25rem;

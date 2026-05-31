@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MG Street - Loja</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&display=swap">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <meta name="robots" content="noindex">
 </head>
@@ -23,9 +26,10 @@
     <main class="loja-main">
         <section class="loja-hero card">
             <div>
-                <span class="section-kicker">Bem-vindo</span>
+                <span class="section-kicker">Novo drop</span>
                 <h2>Nossa coleção, do seu jeito</h2>
                 <p class="muted">Dê uma olhada nos produtos. Entre para montar seu carrinho e comprar.</p>
+                <a class="btn" href="/login">Entrar e comprar</a>
             </div>
             <div class="filter-summary">
                 <strong id="product-count">0</strong>
