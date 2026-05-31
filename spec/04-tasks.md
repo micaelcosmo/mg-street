@@ -128,4 +128,10 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
       `$PORT`, healthcheck `/ping`) + banco Postgres externo durável (Neon/Supabase) com
       `POSTGRES_SSLMODE`. Seção no `DEPLOY.md`. Falta a ação de ops: criar conta/banco e
       preencher os segredos no painel (não versionados).
+- [x] **No ar 24/7 no Render** (2026-05-31): `https://mg-street.onrender.com` live, com
+      Postgres gerenciado no **Supabase** (Session pooler + `POSTGRES_SSLMODE=require`).
+      Validado de fora: `/ping` → `pong`, `/login` renderiza, `/api/public/products` retorna
+      os 4 produtos do seed. Corrigida a corrida de boot entre workers com advisory lock
+      (`pg_advisory_lock` em `initialize_database`). Pendências de ops: `PUBLIC_BASE_URL`
+      apontando para a URL do Render; uploads em disco efêmero (mover p/ storage externo).
 - [ ] **Cobrar de verdade**: trocar `MP_ACCESS_TOKEN` de teste pelo de produção (→ 1.0).

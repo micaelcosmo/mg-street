@@ -1,9 +1,10 @@
 {
   "feito": [
-    "Loja completa + pagamento (Mercado Pago) funcionando",
-    "Deploy HTTPS validado (Cloudflare Tunnel, smoke E2E público OK)",
+    "Loja no ar 24/7 no Render: https://mg-street.onrender.com (Postgres no Supabase)",
+    "Loja completa + pagamento (Mercado Pago sandbox) funcionando",
+    "CI no GitHub verde (matrix 3.11/3.14, pytest + E2E)",
     "Relatório roda o E2E: 97 testes, 0 skipped"
   ],
-  "fazendo": "Tudo verde no /tests/report (97 passed)",
-  "proximo": "Ações suas: habilitar CI (escopo workflow), deploy persistente (segredos fortes), MP produção"
+  "fazendo": "Validar fluxo logado na URL pública e definir PUBLIC_BASE_URL no Render",
+  "proximo": "Rumo a 1.0: refino de front-end (responsividade/design/mídia) e pagamento de produção (MP)"
 }
