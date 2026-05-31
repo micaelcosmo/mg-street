@@ -13,9 +13,18 @@ autenticação **JWT** (hash PBKDF2), dividido em duas áreas:
 - **Dashboard admin** (`/admin`): CRUD de produtos, lista de pedidos, métricas e preview
   da loja como cliente.
 
-Frontend é HTML + CSS + JavaScript puro (sem framework). O projeto é conduzido por
-**Spec-Driven Development (SDD)** — toda mudança passa pelo ciclo descrito em
+Frontend é HTML + CSS + JavaScript puro (sem framework), organizado em `static/css/`
+(camadas `@layer`) e `static/js/` (módulos: `api.js`, `ui.js` + um por página). O projeto é
+conduzido por **Spec-Driven Development (SDD)** — toda mudança passa pelo ciclo descrito em
 `spec/00-constitution.md`.
+
+## Estado atual (retomar daqui)
+
+Loja **no ar** em `https://mg-street.onrender.com` (Render + Supabase). Front repaginado,
+responsivo, acessível e com contraste **AAA**; **CI verde**; suíte **144 passed**. **Fase:
+cliente testando** — aguardando feedback. O snapshot de "onde paramos / como continuar" e as
+pendências (segredos de produção, token MP de produção, fotos reais + storage) estão em
+**`spec/04-tasks.md` → "Estado atual — RETOMAR DAQUI"**.
 
 ## Como rodar
 

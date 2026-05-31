@@ -3,6 +3,34 @@
 > Substitui o antigo `tasks.txt`. Formato: `- [ ]` pendente, `- [x]` concluída.
 > Cada tarefa nova deve passar pelo fluxo da constituição (spec → plan → testes → código).
 
+## Estado atual — RETOMAR DAQUI (2026-05-31)
+
+> **Snapshot vivo. Comece por aqui ao retomar a sessão.** O histórico detalhado de cada item
+> está nas seções abaixo (preservado).
+
+**Onde estamos:** loja **no ar 24/7** em `https://mg-street.onrender.com` (Render + Postgres
+no **Supabase**), com a **repaginada visual** concluída (fonte display Anton, cards 4/5,
+skeleton/estados, footer), **responsividade mobile-first**, **acessibilidade** (foco visível,
+skip-link, foco preso no modal) e **contraste WCAG AAA** (todos os 14 pares ≥ 7:1, travado por
+`tests/test_contrast.py`). **CI verde** (matrix 3.11/3.14). **Suíte: 144 passed, 1 skipped**
+(o E2E só roda com `MGSTREET_DB_TESTS=1`). JS modularizado em `static/js/` (`api.js` wrapper +
+`ui.js` + um por página); CSS em camadas `@layer` em `static/css/`.
+
+**Fase:** *o cliente vai testar/analisar por conta própria* — **aguardando o feedback dele**
+antes do próximo lote. Checkpoint estável: tag **`0.14.0`**.
+
+**Pendências — todas dependem de você (não são código que eu feche sozinho):**
+1. 🔒 **Segredos fortes no `.env`** (produção) — ação de ops; eu nunca leio/edito `.env`.
+2. 💳 **Token de produção do Mercado Pago** (cobrar de verdade) — tem **custo $** → marca a **1.0**.
+3. 🖼️ **Fotos reais + storage externo** (R2/S3) p/ os uploads sobreviverem ao redeploy do
+   Render — seus assets/credenciais. O lado de código (fallback/`lazy`/`aspect-ratio`) já existe.
+
+**Como retomar:**
+1. `docker compose up -d` → abra http://localhost:5001 (e o report em `/tests/report`).
+2. `pytest` deve dar **144 passed** (com Docker ativo, `MGSTREET_DB_TESTS=1 pytest` inclui o E2E).
+3. Leia o **feedback do cliente** e selecione a próxima tarefa pelo ciclo da constituição (§1).
+   Specs de front em `spec/frontend/`. Se o cliente pedir mudança visual, ela passa por elas.
+
 ## Baseline (legado Gemini) — CONCLUÍDO
 
 As 45 tarefas originais (`tasks.txt`, agora removido) entregaram o MVP funcional:

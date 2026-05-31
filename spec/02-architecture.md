@@ -12,8 +12,9 @@ repositories/         # camada de dados — SQL das rotas isolado por entidade
   orders.py           #   create_with_items (transação), list_with_items, stats
   categories.py       #   resolve_id (upsert)
   cart.py             #   get_items, save_items (carrinho por usuário)
-templates/            # login.html, admin.html, shop.html (HTML + JS inline)
-static/               # style.css (índice @layer) + css/ (tokens/base/layout/components/utilities), logo/
+templates/            # landing/login/register/shop/admin.html (HTML; JS via <script src>, sem inline)
+static/               # style.css (índice @layer) + css/ (tokens/base/layout/components/utilities)
+                      #   + js/ (api.js, ui.js, landing/login/register/shop/admin.js) + logo/
 Dockerfile            # python:3.11-slim, usuário não-root (appuser), expõe 5001
 docker-compose.yml    # db (postgres:18-alpine, host 5433) + web (healthcheck via /ping)
 docker-compose.prod.yml  # override prod (gunicorn, FLASK_ENV=production)

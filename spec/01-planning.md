@@ -26,11 +26,14 @@ produtos e acompanhar vendas.
 
 ## Status atual
 
-**MVP funcional pronto** (login, gestão de produtos, carrinho/checkout, dashboard de
-vendas, preview) com testes e infra Docker. **Horizonte agora: loja real para público** —
-o backlog rumo a produção e o feedback do cliente estão em `04-tasks.md` (seção "Backlog
-— Loja real"). Itens como **pagamento real** e **login social** saíram de "fora de escopo"
-e viraram backlog (Fase B / decisão de features mock).
+**Loja real no ar** (`https://mg-street.onrender.com`, Render + Supabase) com fluxo completo
+(catálogo, carrinho, checkout, pagamento Mercado Pago em sandbox), CI verde e a **repaginada
+visual concluída** (identidade hype/street, responsivo mobile-first, acessível, contraste
+**AAA**). **Fase atual: o cliente está testando** — aguardando feedback. O snapshot de
+"onde estamos / como retomar" e as pendências (segredos de produção, token MP de produção,
+fotos reais + storage) vivem em `04-tasks.md` → seção **"Estado atual — RETOMAR DAQUI"**.
+Itens como **pagamento real** e **login social** saíram de "fora de escopo" e viraram
+backlog (Fase B / decisão de features mock).
 
 ## Fora de escopo (por enquanto)
 

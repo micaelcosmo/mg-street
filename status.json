@@ -1,10 +1,11 @@
 {
   "feito": [
     "Loja no ar 24/7 no Render: https://mg-street.onrender.com (Postgres no Supabase)",
-    "Loja completa + pagamento (Mercado Pago sandbox) funcionando",
-    "CI no GitHub verde (matrix 3.11/3.14, pytest + E2E)",
-    "Relatório roda o E2E: 97 testes, 0 skipped"
+    "Repaginada visual: fonte display, cards 4/5, estados/skeleton, footer, responsivo mobile-first",
+    "Acessibilidade: foco visível, skip-link, foco preso no modal; contraste WCAG AAA (travado por teste)",
+    "JS modular (static/js) + CSS em camadas (static/css @layer)",
+    "CI verde (matrix 3.11/3.14); suíte 144 passed"
   ],
-  "fazendo": "Validar fluxo logado na URL pública e definir PUBLIC_BASE_URL no Render",
-  "proximo": "Rumo a 1.0: refino de front-end (responsividade/design/mídia) e pagamento de produção (MP)"
+  "fazendo": "Cliente testando/analisando por conta própria — aguardando feedback (checkpoint: tag 0.14.0)",
+  "proximo": "Ações suas p/ a 1.0: segredos fortes no .env, token de produção do Mercado Pago, fotos reais + storage externo"
 }
