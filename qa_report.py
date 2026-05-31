@@ -27,12 +27,18 @@ def run_pytest():
     """Roda a suíte e retorna (summary, cases, raw_tail)."""
     repo_dir = os.path.dirname(os.path.abspath(__file__))
     xml_path = os.path.join(tempfile.gettempdir(), "mgstreet_report.xml")
+    # Liga o E2E (usa o Postgres do container) e desliga o gateway de pagamento, para o
+    # relatório rodar a jornada completa sem chamar o Mercado Pago a cada refresh.
+    env = dict(os.environ)
+    env["MGSTREET_DB_TESTS"] = "1"
+    env.pop("MP_ACCESS_TOKEN", None)
     proc = subprocess.run(
         [sys.executable, "-m", "pytest", "-q", "--junitxml", xml_path],
         cwd=repo_dir,
         capture_output=True,
         text=True,
         timeout=180,
+        env=env,
     )
     summary, cases = _parse_junit(xml_path)
     return summary, cases, proc.stdout[-3000:]

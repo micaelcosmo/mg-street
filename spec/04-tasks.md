@@ -109,3 +109,17 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
 - [x] Rate limiting em `register` (por IP) e `checkout` (por usuário) reusando `RateLimiter`.
 - [x] Observabilidade: logs estruturados em JSON (opt-in via `LOG_JSON`), sem afetar o dev.
 - [x] Acessibilidade (1ª passada): `role=dialog`/`aria-modal` no modal, `aria-live` no toast, `aria-label` na busca, alts/labels já presentes. (Follow-up: associar labels do form admin.)
+
+## Deploy & CI
+
+- [x] **Deploy HTTPS grátis (Cloudflare Tunnel)** validado: smoke E2E pela URL pública
+      (`/ping`, register, login, products) passou; `docker-compose.tunnel.yml` + `DEPLOY.md`.
+      Pendências de ops (suas): segredos fortes no `.env` + manter no ar; URL fixa = túnel
+      nomeado (token Cloudflare grátis).
+- [x] **Relatório `/tests/report` roda o E2E** (DB do container, sem chamar o gateway) —
+      **0 skipped**, tudo passed.
+- [x] **Cobertura ampliada**: E2E autossuficiente (cria próprio produto; valida estoque,
+      meus-pedidos, carrinho) + testes de stats/preview/validações/serializers. **97 testes.**
+- [ ] **CI no GitHub**: `ci.yml` pronto (pytest + E2E com Postgres). Habilitar exige escopo
+      `workflow` no token (ou colar pela aba Actions) — ação sua.
+- [ ] **Cobrar de verdade**: trocar `MP_ACCESS_TOKEN` de teste pelo de produção (→ 1.0).

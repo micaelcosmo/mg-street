@@ -1,9 +1,9 @@
 {
   "feito": [
-    "Loja completa: auth, produtos+variações, estoque, carrinho persistente",
-    "Pagamento Mercado Pago FUNCIONANDO (checkout concluído)",
-    "E-mails, busca/paginação, produção (gunicorn), deploy (tunnel), logs, a11y"
+    "Loja completa + pagamento (Mercado Pago) funcionando",
+    "Deploy HTTPS validado (Cloudflare Tunnel, smoke E2E público OK)",
+    "Relatório roda o E2E: 97 testes, 0 skipped"
   ],
-  "fazendo": "Tudo construível entregue — faltam só ações de ops/sua",
-  "proximo": "Habilitar CI (escopo workflow); deploy real (túnel + segredos fortes); trocar MP p/ produção quando for cobrar"
+  "fazendo": "Tudo verde no /tests/report (97 passed)",
+  "proximo": "Ações suas: habilitar CI (escopo workflow), deploy persistente (segredos fortes), MP produção"
 }
