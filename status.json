@@ -1,9 +1,9 @@
 {
   "feito": [
-    "Pagamento Mercado Pago (sandbox, validado no backend)",
-    "Deploy: HTTPS grátis via Cloudflare Tunnel (DEPLOY.md)",
-    "CI expandido: pytest + E2E (Postgres de serviço)"
+    "Loja completa: auth, produtos+variações, estoque, carrinho persistente",
+    "Pagamento Mercado Pago FUNCIONANDO (checkout concluído)",
+    "E-mails, busca/paginação, produção (gunicorn), deploy (tunnel), logs, a11y"
   ],
-  "fazendo": "Deploy + CI preparados",
-  "proximo": "Você: subir o túnel (DEPLOY.md) e validar pagamento ponta a ponta; habilitar CI (escopo workflow)"
+  "fazendo": "Tudo construível entregue — faltam só ações de ops/sua",
+  "proximo": "Habilitar CI (escopo workflow); deploy real (túnel + segredos fortes); trocar MP p/ produção quando for cobrar"
 }
