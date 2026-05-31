@@ -7,7 +7,7 @@
     --surface: #181222;
     --surface-alt: #221a30;
     --ink: #f2ecfb;
-    --muted: #a89bc2;
+    --muted: #bdb0d6;
     --border: #4c3a73;
 
     /* Marca — vindas da logo */
@@ -16,7 +16,7 @@
     --brand-accent: #e8c547;
 
     /* Estados */
-    --danger: #f0616d;
+    --danger: #ff8a90;
     --success: #34d399;
     --warning: #fbbf24;
     --focus-ring: #22d3ee;
@@ -26,9 +26,14 @@
     --shadow-soft: 0 10px 28px rgba(0, 0, 0, 0.55);
 
     /* Tokens que capturam literais antes espalhados (mesmos valores) */
-    --ink-on-brand: #fff;          /* texto/borda sobre superfícies coloridas (era #fff/white) */
-    --purple-hover: #5c3bc3;       /* hover de .btn / .buy-btn */
-    --cyan-hover: #14a2b4;         /* hover de .cart-button */
+    --ink-on-brand: #fff;          /* texto sobre superfícies escuras coloridas (botões) */
+    --ink-on-light: #0f0b16;       /* texto ESCURO sobre fundos claros (cyan/accent) — AAA */
+    --btn-bg: #6d28d9;             /* fundo do botão primário (branco AAA 7.1:1) */
+    --btn-bg-hover: #5b21b6;       /* hover do botão primário (AAA) */
+    --purple-hover: #5c3bc3;       /* legado (mantido p/ referência) */
+    --cyan-hover: #3ddbf0;         /* hover do cart-button (clareia; texto escuro AAA) */
+    --danger-strong: #b01622;      /* fundo do btn-danger (branco AAA) */
+    --link: #c4b5fd;               /* links de texto (roxo claro, AAA em surface) */
     --page-bg: linear-gradient(180deg, #140f1e 0%, #0d0a13 100%);
     --product-placeholder: linear-gradient(90deg, #241b30, #181222);
     --border-light: rgba(17, 17, 17, 0.08);

@@ -3,7 +3,7 @@
 /* Botões — .btn e .buy-btn compartilham a base; mantêm as classes que HTML/JS usam. */
 .btn,
 .buy-btn {
-    background: var(--brand-purple);
+    background: var(--btn-bg);
     color: var(--ink-on-brand);
     border: 2px solid var(--border);
     box-shadow: 4px 4px 0 var(--border);
@@ -26,7 +26,7 @@
 
 .btn:hover,
 .buy-btn:hover {
-    background: var(--purple-hover);
+    background: var(--btn-bg-hover);
 }
 
 .btn-ghost {
@@ -35,7 +35,7 @@
 }
 
 .btn-danger {
-    background: var(--danger);
+    background: var(--danger-strong);
     color: var(--ink-on-brand);
 }
 
@@ -282,7 +282,7 @@
 }
 
 .auth-alt a {
-    color: var(--brand-purple);
+    color: var(--link);
     font-weight: bold;
 }
 
@@ -303,6 +303,7 @@
     border-radius: 999px;
     border: 2px solid var(--border);
     background: var(--brand-accent);
+    color: var(--ink-on-light);
     font-weight: 700;
     font-size: 0.82rem;
     text-transform: uppercase;
@@ -362,6 +363,7 @@
 
 .filter-chip.active {
     background: var(--brand-cyan);
+    color: var(--ink-on-light);
 }
 
 /* Grupos do catálogo */
@@ -493,6 +495,7 @@
     border-radius: 999px;
     border: 2px solid var(--border);
     background: var(--brand-accent);
+    color: var(--ink-on-light);
     font-size: 0.78rem;
     font-weight: 700;
     margin-bottom: 8px;
@@ -527,7 +530,7 @@
     padding: 10px 14px;
     border-radius: 999px;
     background: var(--brand-cyan);
-    color: var(--ink-on-brand);
+    color: var(--ink-on-light);
     border: 3px solid var(--border);
     cursor: pointer;
     box-shadow: var(--shadow);

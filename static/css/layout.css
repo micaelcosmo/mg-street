@@ -109,7 +109,7 @@
     z-index: 2000;
     padding: 8px 12px;
     border-radius: 10px;
-    background: var(--brand-purple);
+    background: var(--btn-bg);
     color: var(--ink-on-brand);
     transition: top var(--dur-base) var(--ease-out);
 }

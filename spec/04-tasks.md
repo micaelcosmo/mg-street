@@ -187,4 +187,9 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
       no mobile. Resultado em cada breakpoint preservado.
 - [x] **Acessibilidade (2ª passada)** (2026-05-31): `:focus-visible` global, **skip-link**
       nas páginas, labels do form admin associadas (`for`/`id`), foco **preso** no modal
-      (`trapFocus`) com fechar no Esc. (Auditoria formal de contraste AA fica como follow-up.)
+      (`trapFocus`) com fechar no Esc.
+- [x] **Contraste WCAG AAA** (2026-05-31): auditoria dos pares reais de cor. Corrigidos os
+      que falhavam (texto claro sobre cyan/accent → **texto escuro** `--ink-on-light`; botão
+      primário → roxo mais fundo `#6d28d9`; `btn-danger` → `#b01622`; `muted` clareado; link
+      → roxo claro). **Todos os 14 pares ≥ 7:1** (AAA p/ texto normal). Travado por
+      `tests/test_contrast.py` (recalcula dos tokens e falha se regredir). 144 passed.
