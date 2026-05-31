@@ -15,7 +15,8 @@ services:
     plan: free
     dockerfilePath: ./Dockerfile
     # Produção: gunicorn ligado à porta dinâmica que o Render injeta ($PORT).
-    dockerCommand: gunicorn -b 0.0.0.0:$PORT -w 2 wsgi:app
+    # Sem -w fixo: o gunicorn usa WEB_CONCURRENCY (o Render define conforme a instância; 1 no free).
+    dockerCommand: gunicorn -b 0.0.0.0:$PORT wsgi:app
     healthCheckPath: /ping
     autoDeploy: true
     envVars:

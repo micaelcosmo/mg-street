@@ -368,13 +368,37 @@ def create_carts_table(app):
     app.logger.info("Tabela carts garantida no banco.")
 
 
+SCHEMA_INIT_LOCK_KEY = 728164  # chave fixa do advisory lock que serializa a criação de schema
+
+
+def acquire_schema_lock(app):
+    """Pega um advisory lock global no Postgres (bloqueia até conseguir)."""
+    with app.db_conn.cursor() as cursor:
+        cursor.execute("SELECT pg_advisory_lock(%s);", (SCHEMA_INIT_LOCK_KEY,))
+
+
+def release_schema_lock(app):
+    """Libera o advisory lock da criação de schema."""
+    with app.db_conn.cursor() as cursor:
+        cursor.execute("SELECT pg_advisory_unlock(%s);", (SCHEMA_INIT_LOCK_KEY,))
+
+
 def initialize_database(app):
-    create_users_table(app)
-    create_categories_table(app)
-    create_products_table(app)
-    create_orders_table(app)
-    create_order_items_table(app)
-    create_carts_table(app)
+    # Serializa a criação de tabelas entre processos concorrentes: o gunicorn sobe vários
+    # workers (e o Render pode rodar a instância antiga e a nova juntas durante o deploy), e
+    # dois `CREATE TABLE IF NOT EXISTS` simultâneos colidem na criação da sequência
+    # (users_id_seq). O advisory lock garante um por vez; os demais entram depois e os
+    # CREATE ... IF NOT EXISTS viram no-op.
+    acquire_schema_lock(app)
+    try:
+        create_users_table(app)
+        create_categories_table(app)
+        create_products_table(app)
+        create_orders_table(app)
+        create_order_items_table(app)
+        create_carts_table(app)
+    finally:
+        release_schema_lock(app)
 
 
 def create_app():
