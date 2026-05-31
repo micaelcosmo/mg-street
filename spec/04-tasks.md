@@ -135,3 +135,28 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
       (`pg_advisory_lock` em `initialize_database`). Pendências de ops: `PUBLIC_BASE_URL`
       apontando para a URL do Render; uploads em disco efêmero (mover p/ storage externo).
 - [ ] **Cobrar de verdade**: trocar `MP_ACCESS_TOKEN` de teste pelo de produção (→ 1.0).
+
+## Front-end (cara do site) — rumo à 1.0
+
+> Repaginada visual ("marketing visual") guiada pelas specs em `spec/frontend/`. Decisões:
+> refinar a identidade atual (dark + roxo/ciano da logo), vibe urbano/hype (graffiti),
+> tokens concretos, **100% vanilla**.
+
+- [x] **Specs de front-end criadas** (2026-05-31): `spec/frontend/` com `00-concept`
+      (conceito/direção), `01-styling` (tokens + interatividade), `02-code-style`
+      (HTML/CSS/JS, anti-protótipo) e `03-layout` (distribuição); índice em `README.md`.
+      Mapa em `CLAUDE.md` e nota na constituição (§2) atualizados.
+- [ ] **Arquitetura CSS em camadas**: quebrar `style.css` em tokens/base/layout/componentes/
+      utilitários (BEM), consolidar duplicações (`.btn`/`.buy-btn`), sem hex solto.
+- [ ] **Extrair JS dos templates**: mover `<script>` inline para `static/js/` (`api.js`,
+      `ui.js`, `cart.js`, `<page>.js`); wrapper único de `fetch` com tratamento de erro.
+- [ ] **Remover `style=` inline do `admin.html`** e trocar `alert()` por toast/inline.
+- [ ] **Tipografia & tokens**: aplicar `font-display`/escala modular e os tokens novos
+      (estados, foco, motion) no `:root`; contraste AA.
+- [ ] **Componentes**: redesenhar product card (mídia 4/5 + fallback/skeleton), header/nav,
+      footer (criar), chips de filtro, painel de carrinho, KPIs do admin.
+- [ ] **Estados**: loading (skeleton), vazio e erro em catálogo/carrinho/pedidos.
+- [ ] **Mídia real**: hero + fotos de produto (placeholder enquanto não houver; storage
+      externo para uploads, já que o disco do Render é efêmero).
+- [ ] **Responsividade**: revisão mobile-first das telas (header, grid, carrinho, admin).
+- [ ] **Acessibilidade (2ª passada)**: foco/teclado em modais, labels do form admin, contraste.

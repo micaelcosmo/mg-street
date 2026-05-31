@@ -64,3 +64,4 @@ marca `[x]`; se falhar, mantém `[ ]` e volta à lista. **Testar a cada tarefa.*
 | `spec/03-tests.md` | Estratégia de testes em 3 níveis |
 | `spec/04-tasks.md` | Checklist vivo de tarefas |
 | `spec/05-python-style.md` | PEP8, nomenclatura, docstrings, logging, commits |
+| `spec/frontend/` | Front-end (HTML/CSS/JS): conceito, tokens de estilo, código e layout |

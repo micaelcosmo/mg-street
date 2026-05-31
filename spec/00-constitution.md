@@ -38,6 +38,10 @@ apagados** após validação; o "relatório" de cada tarefa é a **mensagem de c
 
 Trocar qualquer item da stack é uma decisão arquitetural — registre em `02-architecture.md`.
 
+> O front-end (HTML/CSS/JS **vanilla**, sem framework/bundler) segue as specs em
+> **`spec/frontend/`** (conceito, tokens de estilo, código e layout). Mudanças de UI passam
+> por elas.
+
 ## 3. Infraestrutura e Docker (CRÍTICO)
 
 - Ambiente com armazenamento limitado (**< 10 GB**). Use imagens leves (`-slim`/`-alpine`).
