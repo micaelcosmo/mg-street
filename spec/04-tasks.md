@@ -103,9 +103,10 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
 
 ### Fase C — Qualidade / escala
 - [x] Busca server-side (`?q=`) e paginação opt-in (`?page`/`?per_page`) em `/api/products`; admin usa busca no servidor (debounce).
-- [ ] CI: workflow **pronto** em `.github/workflows/ci.yml` (agora **pytest + E2E** com
-      Postgres de serviço). Falta **habilitar** — o push do `.github/` exige escopo
-      `workflow` no token (ou criar/colar pela aba Actions do GitHub).
+- [x] CI: workflow **habilitado** em `.github/workflows/ci.yml` (matrix Python 3.11 + 3.14,
+      **pytest + E2E** com Postgres de serviço). Criado pela aba Actions do GitHub.
+      Correção: `pyproject.toml` com `pythonpath = ["."]` para o `pytest` puro do CI achar
+      `app` (antes só `python -m pytest` enxergava, pois o `-m` injeta o cwd no `sys.path`).
 - [x] Rate limiting em `register` (por IP) e `checkout` (por usuário) reusando `RateLimiter`.
 - [x] Observabilidade: logs estruturados em JSON (opt-in via `LOG_JSON`), sem afetar o dev.
 - [x] Acessibilidade (1ª passada): `role=dialog`/`aria-modal` no modal, `aria-live` no toast, `aria-label` na busca, alts/labels já presentes. (Follow-up: associar labels do form admin.)
@@ -120,6 +121,7 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
       **0 skipped**, tudo passed.
 - [x] **Cobertura ampliada**: E2E autossuficiente (cria próprio produto; valida estoque,
       meus-pedidos, carrinho) + testes de stats/preview/validações/serializers. **97 testes.**
-- [ ] **CI no GitHub**: `ci.yml` pronto (pytest + E2E com Postgres). Habilitar exige escopo
-      `workflow` no token (ou colar pela aba Actions) — ação sua.
+- [x] **CI no GitHub**: `ci.yml` habilitado (matrix 3.11/3.14, pytest + E2E com Postgres).
+      Corrigido o `ModuleNotFoundError: app` do `pytest` puro via `pyproject.toml`
+      (`pythonpath = ["."]`). Roda verde a cada push/PR.
 - [ ] **Cobrar de verdade**: trocar `MP_ACCESS_TOKEN` de teste pelo de produção (→ 1.0).

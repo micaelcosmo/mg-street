@@ -1,0 +1,6 @@
+[tool.pytest.ini_options]
+# Garante a raiz do projeto no sys.path para que `import app` funcione com
+# `pytest` puro (o CI roda assim). Sem isto, só `python -m pytest` enxergava
+# o módulo, pois o `-m` insere o diretório atual no sys.path automaticamente.
+pythonpath = ["."]
+testpaths = ["tests"]
