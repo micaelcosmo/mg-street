@@ -178,9 +178,13 @@ admin, preview, responsividade e identidade visual. Considerado **baseline pront
 - [ ] **Mídia real**: lado de código pronto (fallback/placeholder, `loading="lazy"`,
       `aspect-ratio`); faltam **fotos reais** (seus assets) e **storage externo** (R2/S3) para
       uploads sobreviverem ao redeploy do Render — ação sua (infra/conteúdo).
-- [ ] **Responsividade (mobile-first)**: o site é responsivo (header/grid/tabela→cards/
-      carrinho), mas a **inversão para mobile-first** das media queries foi adiada para fazer
-      com revisão visual (evita regressão às cegas no site no ar).
+- [x] **Responsividade (mobile-first)** (2026-05-31): media queries de `layout.css`/
+      `components.css` invertidas para **mobile-first** (base = mobile; `min-width: 701/901px`
+      amplia para desktop); teardown da tabela do admin e do carrinho mantido como
+      `max-width: 700px` (padrão de teardown). Corrigido bug introduzido no refactor do admin:
+      a regra responsiva do dashboard apontava para `.sales-dashboard > div:first-child`
+      (inexistente após virar classes) → agora `.dashboard-head`/`.dashboard-stats` empilham
+      no mobile. Resultado em cada breakpoint preservado.
 - [x] **Acessibilidade (2ª passada)** (2026-05-31): `:focus-visible` global, **skip-link**
       nas páginas, labels do form admin associadas (`for`/`id`), foco **preso** no modal
       (`trapFocus`) com fechar no Esc. (Auditoria formal de contraste AA fica como follow-up.)

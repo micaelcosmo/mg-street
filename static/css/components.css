@@ -21,6 +21,7 @@
 .buy-btn {
     padding: 10px 12px;
     cursor: pointer;
+    width: 100%;
 }
 
 .btn:hover,
@@ -43,7 +44,7 @@
     background: var(--surface);
     border: 4px solid var(--border);
     border-radius: 20px;
-    padding: 28px;
+    padding: 22px;
     box-shadow: var(--shadow);
 }
 
@@ -88,7 +89,7 @@
 
 .social-buttons {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr;
     gap: 10px;
 }
 
@@ -310,7 +311,8 @@
 
 /* Resumo/contador de filtro */
 .filter-summary {
-    min-width: 120px;
+    min-width: 0;
+    width: 100%;
     padding: 16px;
     background: var(--surface-alt);
     border: 3px solid var(--border);
@@ -370,8 +372,9 @@
 
 .catalog-group-header {
     display: flex;
+    flex-direction: column;
+    align-items: stretch;
     justify-content: space-between;
-    align-items: center;
     gap: 12px;
     margin-bottom: 14px;
 }
@@ -498,8 +501,9 @@
 
 .product-footer {
     display: flex;
+    flex-direction: column;
+    align-items: stretch;
     justify-content: space-between;
-    align-items: center;
     gap: 10px;
     margin-top: auto;
 }
@@ -558,8 +562,9 @@
 .cart-panel header,
 .cart-panel footer {
     display: flex;
+    flex-direction: column;
+    align-items: stretch;
     justify-content: space-between;
-    align-items: center;
     gap: 10px;
 }
 
@@ -588,8 +593,9 @@
 /* Tabela / dashboard do admin */
 .table-toolbar {
     display: flex;
+    flex-direction: column;
+    align-items: stretch;
     justify-content: space-between;
-    align-items: center;
     gap: 12px;
     margin-bottom: 12px;
     flex-wrap: wrap;
@@ -712,8 +718,9 @@
 
 .dashboard-head {
     display: flex;
+    flex-direction: column;
+    align-items: stretch;
     justify-content: space-between;
-    align-items: center;
     gap: 12px;
 }
 
@@ -725,6 +732,7 @@
     display: flex;
     gap: 12px;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .stat {
@@ -752,49 +760,40 @@
     justify-content: flex-end;
 }
 
-/* Media queries de componentes */
-@media (max-width: 900px) {
+/* Media queries de componentes (mobile-first: base = mobile; min-width amplia p/ desktop). */
+@media (min-width: 701px) {
+    .login-card {
+        padding: 28px;
+    }
+
+    .social-buttons {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 901px) {
     .filter-summary {
-        min-width: 0;
-        width: 100%;
+        min-width: 120px;
+        width: auto;
     }
 
     .catalog-group-header,
     .cart-panel header,
     .cart-panel footer,
-    .table-toolbar {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .product-footer {
-        flex-direction: column;
-        align-items: stretch;
+    .table-toolbar,
+    .product-footer,
+    .dashboard-head {
+        flex-direction: row;
+        align-items: center;
     }
 
     .buy-btn {
-        width: 100%;
-    }
-
-    .sales-dashboard > div:first-child {
-        flex-direction: column !important;
-        align-items: stretch !important;
-    }
-
-    .sales-dashboard > div:first-child > div:last-child {
-        justify-content: flex-start;
+        width: auto;
     }
 }
 
+/* Teardown de telas pequenas: a tabela do admin vira cartões e o carrinho gruda nas bordas. */
 @media (max-width: 700px) {
-    .login-card {
-        padding: 22px;
-    }
-
-    .social-buttons {
-        grid-template-columns: 1fr;
-    }
-
     .products-table thead {
         display: none;
     }
